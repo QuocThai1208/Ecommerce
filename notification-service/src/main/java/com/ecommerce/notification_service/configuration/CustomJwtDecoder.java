@@ -1,4 +1,4 @@
-package com.ecommerce.identity_service.configuration;
+package com.ecommerce.notification_service.configuration;
 
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.oauth2.jwt.Jwt;

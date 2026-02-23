@@ -24,6 +24,26 @@ services:
       - '3308:3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    hostname: mongodb
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    restart: always
+    ports:
+      - '8888:8888'
+    environment:
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
   discovery-server:
     build: ./discovery-server
     container_name: discovery-server
@@ -42,6 +62,23 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${IDENTITY_DB_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
       - SPRING_JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
     depends_on:
       - discovery-server
       - mysql
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    restart: always
+    ports:
+      - '8081:8081'
+    environment:
+      - SPRING_DATASOURCE_URL=${NOTIFICATION_DB_URL}
+      - SPRING_BREVO_URL=${EMAIL_BREVO_URL}
+      - SPRING_BREVO_API_KEY=${EMAIL_BREVO_API_KEY}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - kafka
+      - mongodb

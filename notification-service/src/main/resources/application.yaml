@@ -1,0 +1,27 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /notification
+spring:
+  application:
+    name: notification-service
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: notification-group-v1
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*" #Vô hiệu hóa cơ chế bảo mật
+  mongodb:
+    uri: ${SPRING_DATASOURCE_URL}
+notification:
+  email:
+    brevo-url: ${SPRING_BREVO_URL}
+    brevo-apiKey: ${SPRING_BREVO_API_KEY}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_DEFAULT_ZONE}

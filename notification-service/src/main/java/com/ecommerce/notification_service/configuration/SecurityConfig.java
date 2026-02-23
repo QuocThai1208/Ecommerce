@@ -1,4 +1,4 @@
-package com.ecommerce.identity_service.configuration;
+package com.ecommerce.notification_service.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,12 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {
-            "/auth/login",
-            "/auth/introspect",
-            "/auth/logout",
-            "/auth/refresh",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
     };
 
     @Autowired

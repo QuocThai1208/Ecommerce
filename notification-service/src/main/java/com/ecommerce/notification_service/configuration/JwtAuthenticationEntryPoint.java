@@ -1,14 +1,14 @@
-package com.ecommerce.identity_service.configuration;
+package com.ecommerce.notification_service.configuration;
 
-import com.ecommerce.identity_service.dto.ApiResponse;
-import com.ecommerce.identity_service.expention.ErrorCode;
+import com.ecommerce.notification_service.dto.ApiResponse;
+import com.ecommerce.notification_service.expention.ErrorCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
