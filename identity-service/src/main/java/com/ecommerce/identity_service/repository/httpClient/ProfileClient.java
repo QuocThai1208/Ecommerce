@@ -1,0 +1,16 @@
+package com.ecommerce.identity_service.repository.httpClient;
+
+import com.ecommerce.identity_service.dto.ApiResponse;
+import com.ecommerce.identity_service.dto.request.ProfileCreationRequest;
+import com.ecommerce.identity_service.dto.response.ProfileResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@FeignClient(
+        name = "profile-service")
+public interface ProfileClient {
+    @PostMapping(value = "/profiles/internal/create", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<ProfileResponse> createProfile(@RequestBody ProfileCreationRequest request);
+}
