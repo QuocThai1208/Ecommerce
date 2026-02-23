@@ -2,10 +2,7 @@ package com.ecommerce.identity_service.controller;
 
 
 import com.ecommerce.identity_service.dto.ApiResponse;
-import com.ecommerce.identity_service.dto.request.AuthenticationRequest;
-import com.ecommerce.identity_service.dto.request.IntrospectRequest;
-import com.ecommerce.identity_service.dto.request.LogoutRequest;
-import com.ecommerce.identity_service.dto.request.RefreshRequest;
+import com.ecommerce.identity_service.dto.request.*;
 import com.ecommerce.identity_service.dto.response.AuthenticationResponse;
 import com.ecommerce.identity_service.dto.response.IntrospectResponse;
 import com.ecommerce.identity_service.service.AuthenticationService;
@@ -26,6 +23,14 @@ import java.text.ParseException;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
     AuthenticationService authenticationService;
+
+    @PostMapping("otp")
+    ApiResponse<String> saveOtp(@RequestBody SaveOtpRequest request){
+        authenticationService.saveOtp(request.getEmail());
+        return ApiResponse.<String>builder()
+                .message("Lấy OTP thành công.")
+                .build();
+    }
 
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request){

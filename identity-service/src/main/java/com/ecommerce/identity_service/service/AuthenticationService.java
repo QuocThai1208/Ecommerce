@@ -1,5 +1,6 @@
 package com.ecommerce.identity_service.service;
 
+import com.ecommerce.event.dto.NotificationEvent;
 import com.ecommerce.identity_service.dto.request.AuthenticationRequest;
 import com.ecommerce.identity_service.dto.request.IntrospectRequest;
 import com.ecommerce.identity_service.dto.request.LogoutRequest;
@@ -24,6 +25,8 @@ import lombok.experimental.NonFinal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,10 @@ public class AuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+
+    KafkaTemplate<String, Object> kafkaTemplate;
+    StringRedisTemplate stringRedisTemplate;
+
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -189,5 +197,29 @@ public class AuthenticationService {
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
         return signedJWT;
+    }
+
+    public void saveOtp(String email){
+        // Kiểm tra Otp còn hiệu lực
+        if(Boolean.TRUE.equals(stringRedisTemplate.hasKey("OTP_" + email))){
+            throw new AppException(ErrorCode.OTP_ALREADY_SENT);
+        }
+        // tạo otp và gọi notification service để gửi mail
+        String otp = String.format("%06d", new java.security.SecureRandom().nextInt(1000000));
+        stringRedisTemplate.opsForValue().set("OTP_" + email, otp, 5, TimeUnit.MINUTES);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("email")
+                .recipient(email)
+                .subject("Thông tin tạo tài khoản Ecomart.")
+                .body("OTP: " + otp)
+                .build();
+
+        // public message to kafka
+        kafkaTemplate.send("notification-delivery", notificationEvent);
+    }
+
+    public String getOtp(String email) {
+        return (String) stringRedisTemplate.opsForValue().get("OTP_" + email);
     }
 }

@@ -1,5 +1,13 @@
 name: E-Commerce
 services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    hostname: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass admin
   kafka:
     image: "bitnamilegacy/kafka:latest"
     container_name: kafka
@@ -57,15 +65,18 @@ services:
     ports:
       - '8080:8080'
     environment:
+      - REDIS_HOST=${REDIS_HOST}
       - SPRING_DATASOURCE_URL=${IDENTITY_DB_URL}
       - SPRING_DATASOURCE_USERNAME=${IDENTITY_DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${IDENTITY_DB_PASSWORD}
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
       - SPRING_JWT_SIGNER_KEY=${JWT_SIGNER_KEY}
       - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     depends_on:
       - discovery-server
       - mysql
+      - redis
   notification-service:
     build: ./notification-service
     container_name: notification-service

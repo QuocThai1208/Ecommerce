@@ -16,6 +16,7 @@ import com.ecommerce.identity_service.repository.httpClient.ProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,14 @@ public class UserService {
     ProfileClient profileClient;
     KafkaTemplate<String, Object> kafkaTemplate;
 
+    AuthenticationService authenticationService;
+
     public UserResponse createUser(UserCreationRequest request) {
+        String otpSave = authenticationService.getOtp(request.getEmail());
+        if(otpSave == null || !otpSave.equals(request.getOtp())){
+            throw new AppException(ErrorCode.OTP_INVALID);
+        }
+
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
@@ -105,6 +114,7 @@ public class UserService {
         return userMapper.toUserResponses(users);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteUser(String userId) {
         if (!userRepository.existsById(userId)) {
             return "User not found";
@@ -112,4 +122,5 @@ public class UserService {
         userRepository.deleteById(userId);
         return "User deleted successfully";
     }
+
 }

@@ -18,6 +18,8 @@ public enum ErrorCode {
     USERNAME_VALID(1009, "User name must be at least 3 characters.", HttpStatus.BAD_REQUEST),
     PASSWORD_VALID(1010, "Password must be at least 8 characters.", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1011, "Your age at be least {min}.", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(1012, "OTP không hợp lệ.", HttpStatus.BAD_REQUEST),
+    OTP_ALREADY_SENT(1013, "OTP đã được gửi.", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
