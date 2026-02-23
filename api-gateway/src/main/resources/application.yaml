@@ -1,0 +1,72 @@
+server:
+  port: 8888
+
+app:
+  api-prefix: /api
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: identity-service
+              uri: lb://identity-service
+              predicates:
+                - Path=${app.api-prefix}/identity/**
+              filters:
+                - StripPrefix=1
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=${app.api-prefix}/notification/**
+              filters:
+                - StripPrefix=1
+            - id: profile-service
+              uri: lb://profile-service
+              predicates:
+                - Path=${app.api-prefix}/profiles/**
+              filters:
+                - StripPrefix=1
+            - id: file-service
+              uri: lb://file-service
+              predicates:
+                - Path=${app.api-prefix}/files/**
+              filters:
+                - StripPrefix=1
+            - id: catalog-service
+              uri: lb://catalog-service
+              predicates:
+                - Path=${app.api-prefix}/catalog/**
+              filters:
+                - StripPrefix=1
+            - id: inventory-service
+              uri: lb://inventory-service
+              predicates:
+                - Path=${app.api-prefix}/inventory/**
+              filters:
+                - StripPrefix=1
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=${app.api-prefix}/orders/**
+              filters:
+                - StripPrefix=1
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=${app.api-prefix}/payment/**
+              filters:
+                - StripPrefix=1
+            - id: shipment-service
+              uri: lb://shipment-service
+              predicates:
+                - Path=${app.api-prefix}/shipment/**
+              filters:
+                - StripPrefix=1
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_DEFAULT_ZONE}
