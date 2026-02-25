@@ -1,0 +1,20 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /files
+spring:
+  application:
+    name: file-service
+  data:
+    mongodb:
+      connection-string: ${SPRING_DATASOURCE_URL:mongodb://root:root@localhost:27017/file_mgmt}
+app:
+  cloudinary:
+    cloud-name: ${SPRING_CLOUD_NAME}
+    api-secret: ${SPRING_CLOUD_API_SECRET}
+    api-key: ${SPRING_CLOUD_API_KEY}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
