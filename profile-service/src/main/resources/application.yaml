@@ -1,0 +1,17 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /profiles
+spring:
+  application:
+    name: profile-service
+  neo4j:
+    uri:  ${SPRING_DATASOURCE_URL}
+    authentication:
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_DEFAULT_ZONE}

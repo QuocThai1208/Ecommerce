@@ -1,4 +1,4 @@
-package com.ecommerce.notification_service.configuration;
+package com.ecommerce.profile_service.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {
+            "/internal/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Autowired

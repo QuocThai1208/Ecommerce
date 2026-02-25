@@ -1,4 +1,4 @@
-package com.ecommerce.notification_service.dto;
+package com.ecommerce.profile_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

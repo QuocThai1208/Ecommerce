@@ -1,7 +1,7 @@
-package com.ecommerce.notification_service.configuration;
+package com.ecommerce.profile_service.configuration;
 
-import com.ecommerce.notification_service.dto.ApiResponse;
-import com.ecommerce.notification_service.expention.ErrorCode;
+import com.ecommerce.profile_service.dto.ApiResponse;
+import com.ecommerce.profile_service.expention.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

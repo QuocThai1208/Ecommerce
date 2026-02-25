@@ -1,6 +1,5 @@
-package com.ecommerce.profile_service.dto.response;
+package com.ecommerce.profile_service.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,12 +10,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
-    String userId;
-    String avatar;
+public class ProfileUpdateRequest {
     String firstName;
     String lastName;
     String email;
-    @JsonFormat(pattern = "dd-MM-yyyy")
     Date dob;
 }

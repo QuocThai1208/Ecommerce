@@ -1,4 +1,4 @@
-package com.ecommerce.notification_service.expention;
+package com.ecommerce.profile_service.expention;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,7 @@ public enum ErrorCode {
     PASSWORD_VALID(1010, "Password must be at least 8 characters.", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1011, "Your age at be least {min}.", HttpStatus.BAD_REQUEST),
     CANNOT_SEND_EMAIL(1012, "Can not send email.", HttpStatus.BAD_REQUEST),
+    PROFILE_NOT_FOUND(1013, "Profile not found.", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
