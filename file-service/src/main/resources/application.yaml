@@ -5,9 +5,8 @@ server:
 spring:
   application:
     name: file-service
-  data:
-    mongodb:
-      connection-string: ${SPRING_DATASOURCE_URL:mongodb://root:root@localhost:27017/file_mgmt}
+  mongodb:
+    uri: ${SPRING_DATASOURCE_URL}
 app:
   cloudinary:
     cloud-name: ${SPRING_CLOUD_NAME}

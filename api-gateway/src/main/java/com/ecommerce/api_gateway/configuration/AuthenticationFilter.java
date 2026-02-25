@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -24,6 +25,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -65,16 +67,18 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         if(CollectionUtils.isEmpty(authHeader))
             return unauthenticated(exchange.getResponse());
 
-        String token = authHeader.getFirst().replace("Bearer", "");
+        String token = authHeader.getFirst().replace("Bearer ", "");
 
         return identityService.introspect(token).flatMap(introspectResponseApiResponse -> {
             if(introspectResponseApiResponse.getResult().isValid()){ // xác thực thành công
                 return chain.filter(exchange);
             }
             else{ // xác thực thất bại
+                log.info("xác thực thất bại");
                 return unauthenticated(exchange.getResponse());
             }
         }).onErrorResume(throwable -> { // lỗi hệ thống
+            log.info("Lỗi hệ thống");
             return unauthenticated(exchange.getResponse());
         });
     }

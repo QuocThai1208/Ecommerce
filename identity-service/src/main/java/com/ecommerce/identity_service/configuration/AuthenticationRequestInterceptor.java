@@ -1,4 +1,4 @@
-package com.ecommerce.profile_service.configuration;
+package com.ecommerce.identity_service.configuration;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

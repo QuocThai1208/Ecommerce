@@ -21,7 +21,6 @@ public class UserCreationRequest {
     @Size(min = 8,  message = "PASSWORD_VALID")
     String password;
     String email;
-    String city;
     String otp;
     Date dob;
 }

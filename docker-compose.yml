@@ -42,6 +42,14 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    hostname: neo4j
+    restart: always
+    ports:
+      - '7474:7474'
+      - '7687:7687'
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -77,6 +85,35 @@ services:
       - discovery-server
       - mysql
       - redis
+  profile-service:
+    build: ./profile-service
+    container_name: profile-service
+    restart: always
+    ports:
+      - '8082:8082'
+    environment:
+      - SPRING_DATASOURCE_URL=${PROFILE_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${PROFILE_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${PROFILE_DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - neo4j
+  file-service:
+    build: ./file-service
+    container_name: file-service
+    restart: always
+    ports:
+      - '8083:8083'
+    environment:
+      - SPRING_DATASOURCE_URL=${FILE_DB_URI}
+      - SPRING_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - SPRING_CLOUD_API_KEY=${CLOUDINARY_API_KEY}
+      - SPRING_CLOUD_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      - discovery-server
+      - mongodb
   notification-service:
     build: ./notification-service
     container_name: notification-service
