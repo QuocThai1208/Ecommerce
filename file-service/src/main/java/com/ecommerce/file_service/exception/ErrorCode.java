@@ -1,4 +1,4 @@
-package com.ecommerce.file_service.expention;
+package com.ecommerce.file_service.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -21,6 +21,7 @@ public enum ErrorCode {
     CANNOT_SEND_EMAIL(1012, "Can not send email.", HttpStatus.BAD_REQUEST),
     PROFILE_NOT_FOUND(1013, "Profile not found.", HttpStatus.NOT_FOUND),
     FILE_UPLOAD_FAIL(1014, "File upload fail.", HttpStatus.BAD_REQUEST),
+    INVALID_INPUT(1015, "Số lượng file và refId không khớp", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

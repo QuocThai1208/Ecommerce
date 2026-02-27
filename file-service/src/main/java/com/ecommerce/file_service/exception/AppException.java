@@ -1,4 +1,4 @@
-package com.ecommerce.file_service.expention;
+package com.ecommerce.file_service.exception;
 
 public class AppException extends RuntimeException{
     public AppException(ErrorCode errorCode) {

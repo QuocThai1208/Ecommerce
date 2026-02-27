@@ -1,4 +1,4 @@
-package com.ecommerce.file_service.expention;
+package com.ecommerce.file_service.exception;
 
 import com.ecommerce.file_service.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;

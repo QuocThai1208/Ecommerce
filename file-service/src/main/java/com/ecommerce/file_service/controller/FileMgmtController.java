@@ -3,6 +3,7 @@ package com.ecommerce.file_service.controller;
 import com.ecommerce.file_service.dto.ApiResponse;
 import com.ecommerce.file_service.dto.response.FileMgmtResponse;
 import com.ecommerce.file_service.dto.response.FileResponse;
+import com.ecommerce.file_service.dto.response.MultipleFileResponse;
 import com.ecommerce.file_service.service.CloudinaryService;
 import com.ecommerce.file_service.service.FileMgmtService;
 import lombok.AccessLevel;
@@ -30,6 +31,17 @@ public class FileMgmtController {
         return ApiResponse.<FileResponse>builder()
                 .message("Upload file success.")
                 .result(cloudinaryService.uploadFile(file))
+                .build();
+    }
+
+    @PostMapping("/media/multiple-upload")
+    ApiResponse<List<MultipleFileResponse>> uploadMultipleMedia(
+            @RequestParam("files") MultipartFile[] files,
+            @RequestParam("refIds") List<String> refIds
+            ) {
+        return ApiResponse.<List<MultipleFileResponse>>builder()
+                .message("Tải file thành công.")
+                .result(cloudinaryService.uploadMultipleFile(files, refIds))
                 .build();
     }
 

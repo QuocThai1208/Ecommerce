@@ -1,7 +1,7 @@
 package com.ecommerce.file_service.configuration;
 
 import com.ecommerce.file_service.dto.ApiResponse;
-import com.ecommerce.file_service.expention.ErrorCode;
+import com.ecommerce.file_service.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
