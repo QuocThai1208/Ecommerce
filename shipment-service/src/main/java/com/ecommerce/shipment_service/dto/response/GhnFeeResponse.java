@@ -1,0 +1,24 @@
+package com.ecommerce.shipment_service.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class GhnFeeResponse {
+    int code;
+    String message;
+    private FeeData data;
+
+    @Data
+    public static class FeeData {
+        @JsonProperty("total")
+        private String total;
+    }
+}

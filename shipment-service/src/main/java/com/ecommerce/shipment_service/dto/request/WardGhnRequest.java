@@ -1,0 +1,15 @@
+package com.ecommerce.shipment_service.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class WardGhnRequest {
+    Long district_id;
+}
