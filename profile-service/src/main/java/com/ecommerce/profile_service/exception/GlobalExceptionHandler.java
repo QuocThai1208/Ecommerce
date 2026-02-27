@@ -1,6 +1,6 @@
-package com.ecommerce.notification_service.expention;
+package com.ecommerce.profile_service.exception;
 
-import com.ecommerce.notification_service.dto.ApiResponse;
+import com.ecommerce.profile_service.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

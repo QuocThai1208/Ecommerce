@@ -1,4 +1,4 @@
-package com.ecommerce.identity_service.expention;
+package com.ecommerce.profile_service.exception;
 
 public class AppException extends RuntimeException{
     public AppException(ErrorCode errorCode) {

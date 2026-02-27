@@ -7,7 +7,7 @@ import com.ecommerce.inventory_service.dto.response.ProductAssignment;
 import com.ecommerce.inventory_service.dto.response.WarehouseBestResponse;
 import com.ecommerce.inventory_service.entity.Inventories;
 import com.ecommerce.inventory_service.entity.InventoryTransaction;
-import com.ecommerce.inventory_service.expention.AppException;
+import com.ecommerce.inventory_service.exception.AppException;
 import com.ecommerce.inventory_service.exception.ErrorCode;
 import com.ecommerce.inventory_service.mapper.InventoryTransactionMapper;
 import com.ecommerce.inventory_service.repository.InventoriesRepository;

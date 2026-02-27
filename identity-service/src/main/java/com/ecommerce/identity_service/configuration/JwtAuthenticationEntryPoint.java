@@ -1,7 +1,7 @@
 package com.ecommerce.identity_service.configuration;
 
 import com.ecommerce.identity_service.dto.ApiResponse;
-import com.ecommerce.identity_service.expention.ErrorCode;
+import com.ecommerce.identity_service.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
-package com.ecommerce.identity_service.expention;
+package com.ecommerce.notification_service.exception;
 
-import com.ecommerce.identity_service.dto.ApiResponse;
+import com.ecommerce.notification_service.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

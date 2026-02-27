@@ -4,7 +4,7 @@ import com.ecommerce.inventory_service.dto.request.CheckRequest;
 import com.ecommerce.inventory_service.dto.request.InventoriesRequest;
 import com.ecommerce.inventory_service.dto.response.InventoriesResponse;
 import com.ecommerce.inventory_service.entity.Inventories;
-import com.ecommerce.inventory_service.expention.AppException;
+import com.ecommerce.inventory_service.exception.AppException;
 import com.ecommerce.inventory_service.exception.ErrorCode;
 import com.ecommerce.inventory_service.mapper.InventoriesMapper;
 import com.ecommerce.inventory_service.repository.InventoriesRepository;

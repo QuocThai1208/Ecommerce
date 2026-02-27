@@ -6,8 +6,8 @@ import com.ecommerce.identity_service.dto.request.UserRoleUpdateRequest;
 import com.ecommerce.identity_service.dto.request.UserUpdateRequest;
 import com.ecommerce.identity_service.dto.response.UserResponse;
 import com.ecommerce.identity_service.entity.Role;
-import com.ecommerce.identity_service.expention.AppException;
-import com.ecommerce.identity_service.expention.ErrorCode;
+import com.ecommerce.identity_service.exception.AppException;
+import com.ecommerce.identity_service.exception.ErrorCode;
 import com.ecommerce.identity_service.mapper.ProfileMapper;
 import com.ecommerce.identity_service.mapper.UserMapper;
 import com.ecommerce.identity_service.repository.RoleRepository;
@@ -16,7 +16,6 @@ import com.ecommerce.identity_service.repository.httpClient.ProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor

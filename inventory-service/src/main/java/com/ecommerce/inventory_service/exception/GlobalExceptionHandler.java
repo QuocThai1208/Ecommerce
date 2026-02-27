@@ -1,7 +1,6 @@
-package com.ecommerce.inventory_service.expention;
+package com.ecommerce.inventory_service.exception;
 
 import com.ecommerce.inventory_service.dto.ApiResponse;
-import com.ecommerce.inventory_service.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

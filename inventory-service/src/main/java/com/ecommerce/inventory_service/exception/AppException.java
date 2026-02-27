@@ -1,6 +1,4 @@
-package com.ecommerce.inventory_service.expention;
-
-import com.ecommerce.inventory_service.exception.ErrorCode;
+package com.ecommerce.inventory_service.exception;
 
 public class AppException extends RuntimeException{
     public AppException(ErrorCode errorCode) {

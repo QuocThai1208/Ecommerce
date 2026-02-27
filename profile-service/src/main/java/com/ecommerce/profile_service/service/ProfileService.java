@@ -4,8 +4,8 @@ import com.ecommerce.profile_service.dto.request.ProfileCreationRequest;
 import com.ecommerce.profile_service.dto.request.ProfileUpdateRequest;
 import com.ecommerce.profile_service.dto.response.ProfileResponse;
 import com.ecommerce.profile_service.entity.Profile;
-import com.ecommerce.profile_service.expention.AppException;
-import com.ecommerce.profile_service.expention.ErrorCode;
+import com.ecommerce.profile_service.exception.AppException;
+import com.ecommerce.profile_service.exception.ErrorCode;
 import com.ecommerce.profile_service.mapper.ProfileMapper;
 import com.ecommerce.profile_service.repository.ProfileRepository;
 import com.ecommerce.profile_service.repository.httpClient.FileClient;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

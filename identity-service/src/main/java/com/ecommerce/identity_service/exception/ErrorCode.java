@@ -1,4 +1,4 @@
-package com.ecommerce.identity_service.expention;
+package com.ecommerce.identity_service.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
