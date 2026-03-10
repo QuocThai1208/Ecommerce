@@ -32,6 +32,19 @@ services:
       - '3308:3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: default_db
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./init-db:/docker-entrypoint-initdb.d
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -130,3 +143,90 @@ services:
       - discovery-server
       - kafka
       - mongodb
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    restart: always
+    ports:
+      - '8085:8085'
+    environment:
+      - SPRING_DATASOURCE_URL=${INVENTORY_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${INVENTORY_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${INVENTORY_DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - kafka
+      - postgres
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    restart: always
+    ports:
+      - '8084:8084'
+    environment:
+      - SPRING_DATASOURCE_URL=${CATALOG_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${CATALOG_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${CATALOG_DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - postgres
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    restart: always
+    ports:
+      - '8087:8087'
+    environment:
+      - SPRING_DATASOURCE_URL=${PAYMENT_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${PAYMENT_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${PAYMENT_DB_PASSWORD}
+      - SPRING_STRIPE_WEBHOOK_KEY=${STRIPE_WEBHOOK_SECRET}
+      - SPRING_STRIPE_API_KEY=${STRIPE_API_KEY}
+      - SPRING_STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - kafka
+      - postgres
+  shipment-service:
+    build: ./shipment-service
+    container_name: shipment-service
+    restart: always
+    ports:
+      - '8088:8088'
+    environment:
+      - SPRING_DATASOURCE_URL=${SHIPMENT_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${SHIPMENT_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SHIPMENT_DB_PASSWORD}
+      - SPRING_GHN_API_TOKEN=${GHN_API_TOKEN}
+      - SPRING_GHN_SHOP_ID=${GHN_API_SHOP_ID}
+      - SPRING_GHN_BASE_URL=${GHN_API_BASE_URL}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - kafka
+      - postgres
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    restart: always
+    ports:
+      - '8086:8086'
+    environment:
+      - SPRING_DATASOURCE_URL=${ORDER_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${ORDER_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${ORDER_DB_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - DISCOVERY_DEFAULT_ZONE=${DISCOVERY_DEFAULT_ZONE}
+    depends_on:
+      - discovery-server
+      - kafka
+      - postgres
+volumes:
+  postgres_data:

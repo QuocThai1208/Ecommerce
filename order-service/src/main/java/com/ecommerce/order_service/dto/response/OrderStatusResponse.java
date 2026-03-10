@@ -1,0 +1,15 @@
+package com.ecommerce.order_service.dto.response;
+
+import com.ecommerce.order_service.enums.OrderStatus;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class OrderStatusResponse {
+    String id;
+    OrderStatus status;
+}

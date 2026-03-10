@@ -9,14 +9,15 @@ import { useAppRouter } from '@/src/router/useAppRouter'
 
 export default function Header() {
   const user = useUserStore((state) => state.user);
-  const { goToProfile } = useAppRouter();
+  const { goToProfile, goToLogin } = useAppRouter();
+
   return (
-    <header className="sticky top-0 z-40 bg-primary border-b border-slate-200">
+    <header className=" top-0 z-40 bg-primary border-b border-slate-200">
       {/* Top Navigation Bar */}
       <div className="bg-primary border-b border-slate-200 px-4 py-2">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs md:text-xs font-bold">
           <div className="flex items-center gap-4 md:gap-6">
-            <Link href="/seller" className="text-white hover:text-slate-600 transition">
+            <Link href="/seller/dashboard" className="text-white hover:text-slate-600 transition">
               Kênh Người Bán
             </Link>
             <Link href="/download" className="text-white hover:text-slate-600 transition">
@@ -48,7 +49,9 @@ export default function Header() {
               <span>{user || "Người dùng"}</span>
             </Button>
              :
-            <Button variant="ghost" size="sm" className="text-xs h-auto p-1 text-white font-bold">
+            <Button 
+            onClick={goToLogin}
+            variant="ghost" size="sm" className="text-xs h-auto p-1 text-white font-bold">
               <span>Đăng nhập</span>
             </Button>}
           </div>

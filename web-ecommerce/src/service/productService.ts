@@ -1,0 +1,38 @@
+import { ProductRequest } from "@/types/product";
+import apiAxios from "../api/apiAxios"
+import { ENDPOINTS } from "../api/endpoints"
+
+interface ApiResponse<T> {
+    result: T;
+    code: number;
+    message: string;
+}
+
+export const productService = {
+    getCategories: async () => {
+        const res = await apiAxios.get(ENDPOINTS.CATALOG.CATEGORIES) as ApiResponse<any>;
+        return res?.result;
+    },
+    getProducts: async () => {
+        const res = await apiAxios.get(ENDPOINTS.CATALOG.MY_PRODUCT) as ApiResponse<any>;
+        return res?.result;
+    },
+    addProduct: async (data: ProductRequest, files: File[]) => {
+        const formData = new FormData();
+        files.forEach(file => {
+            formData.append('file', file)
+        })
+
+        const jsonBlob = new Blob([JSON.stringify(data)], {
+            type: 'application/json',
+        });
+
+        formData.append('request', jsonBlob);
+        const res = await apiAxios.post(ENDPOINTS.CATALOG.PRODUCT, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }) as ApiResponse<any>;
+        return res?.result;
+    },
+}

@@ -1,0 +1,38 @@
+server:
+  port: 8086
+  servlet:
+    context-path: /orders
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL} # Kết nối với cơ sở dữ liệu PostgreSQL
+    username: ${SPRING_DATASOURCE_USERNAME} # Username kết nối DB
+    password: ${SPRING_DATASOURCE_PASSWORD} # Password kết nối DB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS} # Kết nói với máy chủ Kafka qua cổng 9094
+    producer:
+      # Truyền message(key-value) dưới dạng chuỗi
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: order-group-v1  #Tên nhóm của consumer
+      auto-offset-reset: earliest #Nếu group-id này chưa từng đọc message trong topic thì đọc từ message cũ nhất
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*" #Vô hiệu hóa cơ chế bảo mật
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${DISCOVERY_DEFAULT_ZONE} # Kết nối với Eureka Server
