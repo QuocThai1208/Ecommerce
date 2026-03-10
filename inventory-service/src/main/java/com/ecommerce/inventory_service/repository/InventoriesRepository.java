@@ -13,8 +13,6 @@ public interface InventoriesRepository extends JpaRepository<Inventories, String
     Optional<Inventories> findByProductVariantIdAndWarehouse(String productVariantId, Warehouse warehouse);
     Optional<Inventories> findByProductVariantIdAndWarehouseId(String productVariantId, String warehouseId);
 
-    @Query("""
-    """)
     List<Inventories> findAllByProductVariantIdIn(Set<String> productVariantId);
 
 }

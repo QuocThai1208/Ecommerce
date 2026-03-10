@@ -2,6 +2,7 @@ package com.ecommerce.catalog_service.mapper;
 
 import com.ecommerce.catalog_service.dto.request.ProductRequest;
 import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
+import com.ecommerce.catalog_service.dto.response.ProductDetailResponse;
 import com.ecommerce.catalog_service.dto.response.ProductResponse;
 import com.ecommerce.catalog_service.entity.Product;
 import org.mapstruct.Mapper;
@@ -17,7 +18,11 @@ public interface ProductMapper {
     Product toProduct(ProductRequest request);
 
     @Mapping(target = "active", source = "isActive")
+    @Mapping(target = "categories", ignore = true)
     ProductResponse toProductResponse(Product product);
+
+    @Mapping(target = "categories", ignore = true)
+    ProductDetailResponse toProductDetailResponse(Product product);
 
     List<ProductResponse> toProductResponseList(List<Product> productList);
 

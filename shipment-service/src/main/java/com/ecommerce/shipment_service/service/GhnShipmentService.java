@@ -45,12 +45,12 @@ public class GhnShipmentService {
     ) {
 
         var toWardCode = locationMappingRepository.findByMasterLocationAndCarriers(
-                        userAddress.getWareCode(),
+                        userAddress.getWardCode(),
                         carriers)
                 .orElseThrow(() -> new AppException(ErrorCode.WARD_CODE_NOT_FOUND));
 
         var toDistrictId = locationMappingRepository.findByMasterLocationAndCarriers(
-                        userAddress.getWareCode().getParentCode(),
+                        userAddress.getWardCode().getParentCode(),
                         carriers)
                 .orElseThrow(() -> new AppException(ErrorCode.DISTRICT_NOT_FOUND));
 

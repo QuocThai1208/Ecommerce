@@ -29,6 +29,7 @@ public enum ErrorCode {
     PRODUCT_MEDIA_NOT_EXISTED(1020, "Product media not existed.", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(1020, "Category not existed.", HttpStatus.BAD_REQUEST),
     ERROR_AT_FILE_SERVICE(1021, "Lỗi khi gọi file-service", HttpStatus.BAD_REQUEST),
+    ERROR_AT_IDENTITY_SERVICE(1021, "Lỗi khi gọi identity-service", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

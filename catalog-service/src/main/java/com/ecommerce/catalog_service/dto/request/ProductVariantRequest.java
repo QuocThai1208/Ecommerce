@@ -13,10 +13,9 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductVariantRequest {
+    String name;
     Set<String> attributeValueIds;
     String productId;
     String fileName;
     long priceAdjustment;
-    String productVariantId;
-    Set<String> warehouseIds;
 }

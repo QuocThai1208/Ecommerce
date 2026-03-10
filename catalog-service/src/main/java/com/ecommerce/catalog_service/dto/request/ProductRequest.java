@@ -14,6 +14,5 @@ public class ProductRequest {
     String name;
     String description;
     long basePrice;
-    String brandId;
     Set<String> categories;
 }

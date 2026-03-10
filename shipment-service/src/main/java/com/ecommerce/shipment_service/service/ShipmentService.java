@@ -81,7 +81,7 @@ public class ShipmentService {
         var shipmentResponse = shipmentMapper.toResponse(shipmentRepository.save(shipment));
         shipmentResponse.setCarrierName(shipment.getCarriers().getName());
         shipmentResponse.setShopAddress(mapAddress(shop.getWardCode(), shop.getAddressDetail()));
-        shipmentResponse.setUserAddress(mapAddress(userAddress.getWareCode(), userAddress.getAddressDetail()));
+        shipmentResponse.setUserAddress(mapAddress(userAddress.getWardCode(), userAddress.getAddressDetail()));
         return shipmentResponse;
     }
 
@@ -99,12 +99,12 @@ public class ShipmentService {
                             .orElseThrow(() -> new AppException(ErrorCode.CARRIER_NOT_FOUND));
 
                     var wardCode = locationMappingRepository.findByMasterLocationAndCarriers(
-                            userAddress.getWareCode(),
+                            userAddress.getWardCode(),
                             carrier
                     ).orElseThrow(() -> new AppException(ErrorCode.WARD_CODE_NOT_FOUND));
 
                     var districtId = locationMappingRepository.findByMasterLocationAndCarriers(
-                            userAddress.getWareCode().getParentCode(),
+                            userAddress.getWardCode().getParentCode(),
                             carrier
                     ).orElseThrow(() -> new AppException(ErrorCode.DISTRICT_NOT_FOUND));
 

@@ -14,5 +14,4 @@ public class MasterLocationResponse {
     String codename;
     String name; // tên thành phố/quận
     LocationType type; // cấp của địa chỉ
-    Long code;
 }

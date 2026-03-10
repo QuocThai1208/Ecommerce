@@ -26,6 +26,8 @@ public class Warehouse {
     String name;
     String brandId;
     String wardCode;
+    String districtCode;
+    String provinceCode;
     String addressDetail;
     Double latitude; // vĩ độ
     Double longitude; // kinh độ

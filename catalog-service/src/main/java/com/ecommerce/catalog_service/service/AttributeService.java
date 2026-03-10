@@ -14,11 +14,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @Service
 @Builder
 @RequiredArgsConstructor
@@ -30,7 +34,8 @@ public class AttributeService {
     BrandRepository brandRepository;
     public AttributeResponse createAttribute(AttributeRequest request){
         Attribute attribute = attributeMapper.toAttribute(request);
-        Brand brand = brandRepository.findById(request.getBrandId())
+        var userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Brand brand = brandRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_EXISTED));
         attribute.setBrand(brand);
         return attributeMapper.toAttributeResponse(attributeRepository.save(attribute));
@@ -45,6 +50,19 @@ public class AttributeService {
     public List<AttributeResponse> getAllAttribute(){
         var attributes = attributeRepository.findAll();
         return attributeMapper.toAttributeResponseList(attributes);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AttributeResponse> getByBrandId(){
+        var userId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Brand brand = brandRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.BRAND_NOT_EXISTED));
+
+        var attr = attributeRepository.findAllByBrandId(brand.getId());
+        log.info("attr: {}", attr);
+
+        return attributeMapper.toAttributeResponseList(attr);
     }
 
     public AttributeResponse updateAttribute(String attributeId, AttributeUpdateRequest request){

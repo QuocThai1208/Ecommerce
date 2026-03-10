@@ -27,19 +27,19 @@ public class WarehouseController {
                 .build();
     }
 
+    @GetMapping
+    ApiResponse<List<WarehouseResponse>> getByBrandId(@RequestParam("brandId") String brandId){
+        return ApiResponse.<List<WarehouseResponse>>builder()
+                .message("Get warehouse success.")
+                .result(warehouseService.getByBrandId(brandId))
+                .build();
+    }
+
     @GetMapping("/{warehouseId}")
     ApiResponse<WarehouseResponse> getWarehouse(@PathVariable String warehouseId){
         return ApiResponse.<WarehouseResponse>builder()
                 .message("Get warehouse success.")
                 .result(warehouseService.getWarehouse(warehouseId))
-                .build();
-    }
-
-    @GetMapping
-    ApiResponse<List<WarehouseResponse>> getAllWarehouse(){
-        return ApiResponse.<List<WarehouseResponse>>builder()
-                .message("Get warehouse success.")
-                .result(warehouseService.getAllWarehouse())
                 .build();
     }
 

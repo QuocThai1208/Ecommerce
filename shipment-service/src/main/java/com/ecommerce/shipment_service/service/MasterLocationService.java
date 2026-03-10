@@ -31,58 +31,26 @@ public class MasterLocationService {
 
     LocationClient locationClient;
 
-    public PageResponse<MasterLocationResponse> getProvince(int page, int size){
-        Pageable pageable = PageRequest.of(page-1, size);
-        var pageResponse = masterLocationRepository.findAllByType(LocationType.PROVINCE, pageable);
-        var provinceResponseList = pageResponse.getContent().stream()
-                .map(masterLocationMapper::toProvinceResponse) // map masterLocation -> ProvinceResponse
-                .toList();
-        return PageResponse.<MasterLocationResponse>builder()
-                .currentPage(page)
-                .pageSize(pageResponse.getSize())
-                .totalPage(pageResponse.getTotalPages())
-                .totalElements(pageResponse.getTotalElements())
-                .data(provinceResponseList)
-                .build();
+    public List<MasterLocationResponse> getProvince(){
+        var masterLocations = masterLocationRepository.findAllByType(LocationType.PROVINCE);
+        return masterLocationMapper.toMasterLocationResponses(masterLocations);
     }
 
-    public PageResponse<MasterLocationResponse> getDistrict(int page, int size, String codename){
+    public List<MasterLocationResponse> getDistrict(String codename){
         var province = masterLocationRepository.findById(codename)
                 .orElseThrow(() -> new AppException(ErrorCode.PROVINCE_NOT_FOUND));
 
-        Pageable pageable = PageRequest.of(page, size);
-        var pageResponse = masterLocationRepository.findAllByParentCode(province, pageable);
-        var districtResponse = pageResponse.getContent().stream()
-                .map(masterLocationMapper::toProvinceResponse)
-                .toList();
-
-
-        return PageResponse.<MasterLocationResponse>builder()
-                .currentPage(page)
-                .pageSize(pageResponse.getSize())
-                .totalPage(pageResponse.getTotalPages())
-                .totalElements(pageResponse.getTotalElements())
-                .data(districtResponse)
-                .build();
+        var districts = masterLocationRepository.findAllByParentCode(province);
+        return masterLocationMapper.toMasterLocationResponses(districts);
     }
 
-    public PageResponse<MasterLocationResponse> getWard(int page, int size, String codename){
+    public List<MasterLocationResponse> getWard(String codename){
         var district = masterLocationRepository.findById(codename)
                 .orElseThrow(() -> new AppException(ErrorCode.DISTRICT_NOT_FOUND));
 
-        Pageable pageable = PageRequest.of(page, size);
-        var pageResponse = masterLocationRepository.findAllByParentCode(district, pageable);
-        var wardResponse = pageResponse.getContent().stream()
-                .map(masterLocationMapper::toProvinceResponse)
-                .toList();
+        var wards = masterLocationRepository.findAllByParentCode(district);
 
-        return PageResponse.<MasterLocationResponse>builder()
-                .currentPage(page)
-                .pageSize(pageResponse.getSize())
-                .totalPage(pageResponse.getTotalPages())
-                .totalElements(pageResponse.getTotalElements())
-                .data(wardResponse)
-                .build();
+        return masterLocationMapper.toMasterLocationResponses(wards);
     }
 
     @Transactional

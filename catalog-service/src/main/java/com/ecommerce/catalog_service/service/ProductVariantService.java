@@ -50,13 +50,7 @@ public class ProductVariantService {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public List<ProductVariantResponse> createProductVariant(String requestJson, MultipartFile[] files) {
-        List<ProductVariantRequest> request;
-        try{
-            request = objectMapper.readValue(requestJson, new TypeReference<List<ProductVariantRequest>>() {});
-        }catch(Exception e){
-            throw new RuntimeException("Error parsing JSON request: ", e);
-        }
+    public List<ProductVariantResponse> createProductVariant(List<ProductVariantRequest> request, MultipartFile[] files) {
 
         var now = Instant.now();
 
@@ -124,7 +118,8 @@ public class ProductVariantService {
                         ProductMedia media = ProductMedia.builder()
                                 .product(product)
                                 .mediaUrl(url)
-                                .isMain(false)
+                                .isMain(!productMediaRepository.existsByProductSlugAndIsMainTrue(firstProductId))
+                                .sortOrder(productMediaRepository.findMaxSortOrderByProductId(firstProductId) + 1)
                                 .created_at(now)
                                 .update_at(now)
                                 .build();
@@ -147,6 +142,11 @@ public class ProductVariantService {
         var productVariant = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
         return productVariantMapper.toProductVariantResponse(productVariant);
+    }
+
+    public List<ProductVariantResponse> getByProductSlug(String productSlug){
+        var variant = productVariantRepository.findAllByProductSlug(productSlug);
+        return productVariantMapper.toProductVariantResponseList(variant);
     }
 
     public List<ProductVariantResponse> getAllProductVariant(){
@@ -189,4 +189,5 @@ public class ProductVariantService {
                         .build()
         ).toList();
     }
+
 }

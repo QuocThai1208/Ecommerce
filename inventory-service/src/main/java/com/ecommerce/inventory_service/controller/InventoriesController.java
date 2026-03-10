@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,10 +23,19 @@ public class InventoriesController {
     InventoryTransactionService transactionService;
     InventoriesService inventoriesService;
 
+    @GetMapping
     ApiResponse<List<InventoriesResponse>> getInventories(){
         return ApiResponse.<List<InventoriesResponse>>builder()
                 .message("Get inventories success.")
                 .result(inventoriesService.getInventories())
+                .build();
+    }
+
+    @PostMapping("/by-variants")
+    ApiResponse<List<InventoriesResponse>> getByVariantIds(@RequestBody Set<String> variantIds){
+        return ApiResponse.<List<InventoriesResponse>>builder()
+                .message("Lấy danh sách tồn kho thành công.")
+                .result(inventoriesService.getByVariantId(variantIds))
                 .build();
     }
 

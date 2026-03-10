@@ -6,9 +6,16 @@ import com.ecommerce.shipment_service.entity.UserAddress;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface UserAddressMapper {
-    @Mapping(target = "wareCode", ignore = true)
+    @Mapping(target = "wardCode", ignore = true)
     UserAddress toUserAddress(UserAddressRequest request);
+
+    @Mapping(target = "wardCode", ignore = true)
     UserAddressResponse toUserAddressResponse(UserAddress userAddress);
+
+    List<UserAddressResponse> toUserAddressResponseList(List<UserAddress> userAddressList);
+
 }

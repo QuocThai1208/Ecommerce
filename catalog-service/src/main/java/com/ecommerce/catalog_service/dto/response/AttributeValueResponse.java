@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AttributeValueResponse {
     String id;
-    AttributeResponse attribute;
     String value;
     String valueCode;
-    String brandName;
 }

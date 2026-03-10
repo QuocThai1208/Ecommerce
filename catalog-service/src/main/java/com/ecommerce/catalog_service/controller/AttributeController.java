@@ -27,6 +27,14 @@ public class AttributeController {
                 .build();
     }
 
+    @GetMapping("/my-brand")
+    ApiResponse<List<AttributeResponse>> getAllByBrand(){
+        return ApiResponse.<List<AttributeResponse>>builder()
+                .message("Lấy danh sách thuộc tính thành công.")
+                .result(attributeService.getByBrandId())
+                .build();
+    }
+
     @GetMapping("/{attributeId}")
     ApiResponse<AttributeResponse> getAttribute(@PathVariable String attributeId){
         return ApiResponse.<AttributeResponse>builder()

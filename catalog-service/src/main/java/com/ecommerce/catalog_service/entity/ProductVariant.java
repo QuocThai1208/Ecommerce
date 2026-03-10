@@ -1,5 +1,6 @@
 package com.ecommerce.catalog_service.entity;
 
+import com.ecommerce.catalog_service.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,16 +17,20 @@ import java.util.Set;
 public class ProductVariant {
     @Id
     String sku;
-
+    String name;
     @ManyToMany(fetch = FetchType.LAZY)
     Set<AttributeValue> attributeValues;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productId", nullable = false)
+    @JoinColumn(name = "productSlug", nullable = false)
     Product product;
 
     @OneToOne(fetch = FetchType.LAZY)
     ProductMedia productMedia;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    ProductStatus status = ProductStatus.INACTIVE;
 
     long priceAdjustment;
     Instant created_at;

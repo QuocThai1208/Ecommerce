@@ -16,8 +16,11 @@ public class UserAddressResponse {
     String userId;
     String fullName; // tên người nhận hàng
     String phone; // số điện thoại nhận hàng
-    String address; // địa chỉ chi tiết
+    String addressDetail; // địa chỉ chi tiết
     Boolean isDefault; // chọn làm mặc định
-    Instant createdAt;
-    Instant updateAt;
+    String wardCode;
+    String districtCode;
+    String provinceCode;
+    Double latitude;  // Vĩ độ
+    Double longitude; // Kinh độ
 }

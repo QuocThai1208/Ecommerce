@@ -1,13 +1,14 @@
-package com.ecommerce.catalog_service.dto.request;
+package com.ecommerce.identity_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AttributeRequest {
-    String name;
+public class EmailResponse {
+    String email;
 }

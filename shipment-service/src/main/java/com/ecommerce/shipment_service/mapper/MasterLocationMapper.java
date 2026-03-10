@@ -13,6 +13,7 @@ import java.util.List;
 public interface MasterLocationMapper {
     MasterLocation toMasterLocation(ProvinceClientItemRequest request);
     MasterLocationResponse toProvinceResponse(MasterLocation masterLocation);
+    List<MasterLocationResponse> toMasterLocationResponses(List<MasterLocation> masterLocations);
 
     List<MasterLocation> toMasterLocationList(List<ProvinceClientItemRequest> requests);
 

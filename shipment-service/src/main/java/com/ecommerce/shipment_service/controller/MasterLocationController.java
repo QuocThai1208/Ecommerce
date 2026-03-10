@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,37 +41,26 @@ public class MasterLocationController {
     }
 
     @GetMapping("/provinces")
-    ApiResponse<PageResponse<MasterLocationResponse>> getProvince(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ){
-        return ApiResponse.<PageResponse<MasterLocationResponse>>builder()
+    ApiResponse<List<MasterLocationResponse>> getProvince(){
+        return ApiResponse.<List<MasterLocationResponse>>builder()
                 .message("Lấy danh sách tỉnh thành công.")
-                .result(masterLocationService.getProvince(page, size))
+                .result(masterLocationService.getProvince())
                 .build();
     }
 
     @GetMapping("/provinces/{codename}")
-    ApiResponse<PageResponse<MasterLocationResponse>> getDistrict(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-            @PathVariable("codename") String codename
-    ){
-        return ApiResponse.<PageResponse<MasterLocationResponse>>builder()
+    ApiResponse<List<MasterLocationResponse>> getDistrict(@PathVariable("codename") String codename){
+        return ApiResponse.<List<MasterLocationResponse>>builder()
                 .message("Lấy danh sách tỉnh thành công.")
-                .result(masterLocationService.getDistrict(page, size, codename))
+                .result(masterLocationService.getDistrict(codename))
                 .build();
     }
 
     @GetMapping("/districts/{codename}")
-    ApiResponse<PageResponse<MasterLocationResponse>> getWard(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-            @PathVariable("codename") String codename
-    ){
-        return ApiResponse.<PageResponse<MasterLocationResponse>>builder()
+    ApiResponse<List<MasterLocationResponse>> getWard(@PathVariable("codename") String codename){
+        return ApiResponse.<List<MasterLocationResponse>>builder()
                 .message("Lấy danh sách tỉnh thành công.")
-                .result(masterLocationService.getWard(page, size, codename))
+                .result(masterLocationService.getWard(codename))
                 .build();
     }
 }

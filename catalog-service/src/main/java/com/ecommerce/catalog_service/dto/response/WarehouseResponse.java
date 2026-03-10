@@ -1,18 +1,19 @@
-package com.ecommerce.inventory_service.dto.request;
+package com.ecommerce.catalog_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
+
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WarehouseRequest {
+public class WarehouseResponse {
+    String id;
     String name;
-    String brandId;
     String wardCode;
     String districtCode;
     String provinceCode;

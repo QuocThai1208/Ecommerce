@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -13,5 +15,5 @@ import java.time.Instant;
 public class AttributeResponse {
     String id;
     String name;
-    String brandName;
+    Set<AttributeValueResponse> values;
 }

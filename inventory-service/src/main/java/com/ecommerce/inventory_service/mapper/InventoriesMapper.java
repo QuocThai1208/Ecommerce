@@ -11,6 +11,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface InventoriesMapper {
     Inventories inventoriesEventToInventories(InventoriesRequest request);
+
+    @Mapping(target = "warehouseId", source = "warehouse.id")
     InventoriesResponse toInventoriesResponse(Inventories inventories);
     List<InventoriesResponse> toInventoriesResponseList(List<Inventories> inventories);
 }

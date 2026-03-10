@@ -15,6 +15,7 @@ public interface CategoryMapper {
     @Mapping(target = "parent", ignore = true)
     Category toCategory(CategoryRequest request);
 
+    @Mapping(target = "parentId", source = "parent.id")
     CategoryResponse toResponse(Category category);
 
     List<CategoryResponse> tCategoryResponseList(List<Category> categoryList);

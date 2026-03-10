@@ -3,12 +3,8 @@ package com.ecommerce.catalog_service.controller;
 import com.ecommerce.catalog_service.dto.ApiResponse;
 import com.ecommerce.catalog_service.dto.request.BrandRequest;
 import com.ecommerce.catalog_service.dto.request.BrandUpdateRequest;
-import com.ecommerce.catalog_service.dto.request.ProductRequest;
-import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.BrandResponse;
-import com.ecommerce.catalog_service.dto.response.ProductResponse;
 import com.ecommerce.catalog_service.service.BrandService;
-import com.ecommerce.catalog_service.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,11 +27,11 @@ public class BrandController {
                 .build();
     }
 
-    @GetMapping("/{brandId}")
-    ApiResponse<BrandResponse> getBrand(@PathVariable String brandId){
+    @GetMapping("/my-brand")
+    ApiResponse<BrandResponse> getBrand(){
         return ApiResponse.<BrandResponse>builder()
                 .message("Get brand success.")
-                .result(brandService.getBrand(brandId))
+                .result(brandService.getBrandByUserId())
                 .build();
     }
 

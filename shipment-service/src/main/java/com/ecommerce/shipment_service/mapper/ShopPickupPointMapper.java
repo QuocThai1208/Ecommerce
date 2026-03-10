@@ -6,6 +6,8 @@ import com.ecommerce.shipment_service.entity.ShopPickupPoint;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ShopPickupPointMapper {
     @Mapping(target = "id", source = "warehouseId")
@@ -13,4 +15,5 @@ public interface ShopPickupPointMapper {
     ShopPickupPoint toShopPickupPoint(WarehouseCreationEvent event);
 
     ShopPickupPointResponse toShopPickupPointResponse(ShopPickupPoint shopPickupPoint);
+
 }

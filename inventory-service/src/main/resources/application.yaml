@@ -19,6 +19,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      # Truyền message(key-value) dưới dạng chuỗi
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       group-id: inventory-group-v2  #Tên nhóm của consumer
       auto-offset-reset: earliest #Nếu group-id này chưa từng đọc message trong topic thì đọc từ message cũ nhất

@@ -4,6 +4,7 @@ import com.ecommerce.event.dto.NotificationEvent;
 import com.ecommerce.identity_service.dto.request.UserCreationRequest;
 import com.ecommerce.identity_service.dto.request.UserRoleUpdateRequest;
 import com.ecommerce.identity_service.dto.request.UserUpdateRequest;
+import com.ecommerce.identity_service.dto.response.EmailResponse;
 import com.ecommerce.identity_service.dto.response.UserResponse;
 import com.ecommerce.identity_service.entity.Role;
 import com.ecommerce.identity_service.exception.AppException;
@@ -38,6 +39,15 @@ public class UserService {
     KafkaTemplate<String, Object> kafkaTemplate;
 
     AuthenticationService authenticationService;
+
+    public EmailResponse getMyEmail(){
+        var userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return EmailResponse.builder()
+                .email(user.getEmail())
+                .build();
+    }
 
     public UserResponse createUser(UserCreationRequest request) {
         String otpSave = authenticationService.getOtp(request.getEmail());

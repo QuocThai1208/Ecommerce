@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 import java.time.Instant;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,11 +20,11 @@ public class AttributeValue {
     String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attributeId", nullable = false)
+    @JoinColumn(name = "attribute_id", nullable = false)
     Attribute attribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brandId", nullable = false)
+    @JoinColumn(name = "brand_id", nullable = false)
     Brand brand;
 
     String value;

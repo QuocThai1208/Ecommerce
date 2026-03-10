@@ -6,9 +6,11 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +20,11 @@ public class Attribute {
     @AttId
     String id;
     String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brandId", nullable = false)
     Brand brand;
+
+    @OneToMany(mappedBy = "attribute")
+    Set<AttributeValue> values;
 }

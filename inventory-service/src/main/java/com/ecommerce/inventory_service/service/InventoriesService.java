@@ -99,4 +99,9 @@ public class InventoriesService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVENTORY_NOT_EXISTED));
         return inventory.getQuantityAvailable() >= request.getQuantity();
     }
+
+    public List<InventoriesResponse> getByVariantId(Set<String> variantIds){
+        var inventories = inventoriesRepository.findAllByProductVariantIdIn(variantIds);
+        return inventoriesMapper.toInventoriesResponseList(inventories);
+    }
 }

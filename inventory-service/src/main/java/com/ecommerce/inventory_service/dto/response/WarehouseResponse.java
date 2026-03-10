@@ -13,13 +13,12 @@ import java.time.Instant;
 public class WarehouseResponse {
     String id;
     String name;
-    String brandId;
     String wardCode;
+    String districtCode;
+    String provinceCode;
     String addressDetail;
     Double latitude; // vĩ độ
     Double longitude; // kinh độ
     String contactName; // Tên người đại diện của kho
     String contactPhone; // Sdt của người đại diện
-    Instant created_at;
-    Instant update_at;
 }

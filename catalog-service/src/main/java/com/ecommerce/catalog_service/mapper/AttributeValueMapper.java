@@ -15,7 +15,6 @@ public interface AttributeValueMapper {
     @Mapping(target = "attribute", ignore = true)
     AttributeValue toAttributeValue(AttributeValueRequest request);
 
-    @Mapping(target = "brandName", source = "brand.name")
     AttributeValueResponse toAttributeValueResponse(AttributeValue attributeValue);
 
     @Mapping(target = "attribute", ignore = true)

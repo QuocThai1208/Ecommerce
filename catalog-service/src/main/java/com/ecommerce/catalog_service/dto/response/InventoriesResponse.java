@@ -1,10 +1,7 @@
-package com.ecommerce.inventory_service.dto.response;
+package com.ecommerce.catalog_service.dto.response;
 
-import com.ecommerce.inventory_service.entity.Warehouse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor

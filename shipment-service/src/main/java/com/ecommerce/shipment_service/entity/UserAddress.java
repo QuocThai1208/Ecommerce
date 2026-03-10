@@ -23,11 +23,13 @@ public class UserAddress {
     String phone; // số điện thoại nhận hàng
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wareCode", nullable = false)
-    MasterLocation wareCode; // địa chỉ
+    @JoinColumn(name = "wardCode", nullable = false)
+    MasterLocation wardCode; // địa chỉ
 
     String addressDetail; // địa chỉ chi tiết
     Boolean isDefault; // chọn làm mặc định
+    Double latitude;  // Vĩ độ
+    Double longitude; // Kinh độ
     Instant createdAt;
     Instant updateAt;
 }

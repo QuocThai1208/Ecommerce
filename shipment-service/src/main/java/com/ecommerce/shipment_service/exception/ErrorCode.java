@@ -24,6 +24,7 @@ public enum ErrorCode {
     WARD_CODE_NOT_FOUND(1028, "Không tìm thấy code của xã.", HttpStatus.BAD_REQUEST),
     DISTRICT_CODE_NOT_FOUND(1029, "Không tìm thấy code của huyện.", HttpStatus.BAD_REQUEST),
     SHOP_NOT_FOUND(1030, "Không tìm thấy shop.", HttpStatus.BAD_REQUEST),
+    CAN_NOT_DELETE_ADDRESS_DEFAULT(1031, "Không thể xóa địa chỉ mặc định.", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

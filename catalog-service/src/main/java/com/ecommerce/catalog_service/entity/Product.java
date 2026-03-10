@@ -1,5 +1,6 @@
 package com.ecommerce.catalog_service.entity;
 
+import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.util.SlugUtils;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,10 @@ public class Product {
     @JoinColumn(name = "brand_id", nullable = false)
     Brand brand;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    ProductStatus status = ProductStatus.INACTIVE;
+
     @ManyToMany(fetch = FetchType.LAZY)
     Set<Category> categories;
     Instant created_at;
@@ -37,7 +42,7 @@ public class Product {
 
     // Tự động tạo id khi save
     @PrePersist
-    public void generateSlug(){
+    public void generateSlug() {
         this.slug = SlugUtils.toSlug(this.name);
     }
 }

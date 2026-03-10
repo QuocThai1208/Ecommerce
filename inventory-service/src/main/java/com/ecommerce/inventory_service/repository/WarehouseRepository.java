@@ -3,5 +3,8 @@ package com.ecommerce.inventory_service.repository;
 import com.ecommerce.inventory_service.entity.Warehouse;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface WarehouseRepository extends JpaRepository<Warehouse, String> {
+    List<Warehouse> findAllByBrandId(String brandId);
 }

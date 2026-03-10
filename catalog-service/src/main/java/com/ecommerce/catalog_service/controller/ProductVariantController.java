@@ -34,11 +34,11 @@ public class ProductVariantController {
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     ApiResponse<List<ProductVariantResponse>> create(
             @RequestPart("files") MultipartFile[] files,
-            @RequestPart("request")String requestJson
+            @RequestPart("request") List<ProductVariantRequest> request
     ){
         return ApiResponse.<List<ProductVariantResponse>>builder()
                 .message("Create product variant success.")
-                .result(productVariantService.createProductVariant(requestJson, files))
+                .result(productVariantService.createProductVariant(request, files))
                 .build();
     }
 

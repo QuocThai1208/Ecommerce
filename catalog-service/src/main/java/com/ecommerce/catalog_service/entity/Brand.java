@@ -18,6 +18,9 @@ public class Brand {
     @BrandId
     String id;
     String name;
+    @Column(unique = true)
+    String userId;
+    String email;
     String description;
     Instant created_at;
     Instant update_at;

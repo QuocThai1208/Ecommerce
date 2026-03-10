@@ -12,6 +12,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -20,11 +21,9 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductVariantResponse {
-    String id;
-    Product product;
-    String media;
     String sku;
+    String name;
+    String media;
     long priceAdjustment;
-    Instant created_at;
-    Instant update_at;
+    Set<AttributeValueResponse> attributeValues;
 }

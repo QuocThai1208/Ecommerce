@@ -19,6 +19,6 @@ public class CategoryResponse {
     String id;
     String name;
     String description;
-    List<CategoryResponse> children;
+    String parentId;
     String level;
 }
