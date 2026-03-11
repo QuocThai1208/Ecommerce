@@ -12,10 +12,6 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductUpdateRequest {
     String name;
-    String slug;
     String description;
-    long basePrice;
-    Boolean isActive;
-    String brandId;
     Set<String> categories;
 }

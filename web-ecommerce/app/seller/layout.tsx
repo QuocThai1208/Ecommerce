@@ -42,6 +42,8 @@ export default function SellerLayout({
                 const errorCode = e.response?.data?.code || e.code;
                 if (errorCode === 1016) {
                     if (!isRegisterPage) router.push("/seller/register");
+                }else if (errorCode === 1401){
+                    router.push("/login");
                 }
             } finally {
                 setIsChecking(false);

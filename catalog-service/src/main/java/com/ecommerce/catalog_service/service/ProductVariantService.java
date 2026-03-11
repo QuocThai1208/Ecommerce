@@ -1,8 +1,6 @@
 package com.ecommerce.catalog_service.service;
 
-import com.ecommerce.catalog_service.dto.ApiResponse;
 import com.ecommerce.catalog_service.dto.request.ItemBatchDetailRequest;
-import com.ecommerce.catalog_service.dto.request.ProductMediaRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.ItemBatchDetailResponse;
@@ -12,6 +10,7 @@ import com.ecommerce.catalog_service.entity.AttributeValue;
 import com.ecommerce.catalog_service.entity.Product;
 import com.ecommerce.catalog_service.entity.ProductMedia;
 import com.ecommerce.catalog_service.entity.ProductVariant;
+import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.exception.AppException;
 import com.ecommerce.catalog_service.exception.ErrorCode;
 import com.ecommerce.catalog_service.mapper.ProductVariantMapper;
@@ -190,4 +189,56 @@ public class ProductVariantService {
         ).toList();
     }
 
+    public ProductStatus updateVisibility(String variantSku, String action){
+        var variant = productVariantRepository.findById(variantSku)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        // Lấy trạng thái hiện tại
+        ProductStatus currentStatus = variant.getStatus();
+
+        // Xử lý tín hiệu ẨN (HIDE)
+        if ("HIDE".equalsIgnoreCase(action)) {
+            // Kiểm tra điều kiện: Không phải DISCONTINUED mới được ẩn
+            if (currentStatus == ProductStatus.DISCONTINUED) {
+                throw new AppException(ErrorCode.CANNOT_HIDE_DISCONTINUED_PRODUCT);
+            }
+            // Lưu trạng thái hiện tại vào previousStatus trước khi ghi đè
+            variant.setPreviousStatus(currentStatus);
+            variant.setStatus(ProductStatus.HIDDEN);
+        }
+
+        // Xử lý tín hiệu HIỆN LẠI (SHOW)
+        else if ("SHOW".equalsIgnoreCase(action)) {
+            if (currentStatus == ProductStatus.HIDDEN) {
+                // Khôi phục về trạng thái cũ đã lưu, nếu null thì mặc định ACTIVE
+                ProductStatus restoreStatus = (variant.getPreviousStatus() != null)
+                        ? variant.getPreviousStatus()
+                        : ProductStatus.ACTIVE;
+
+                variant.setStatus(restoreStatus);
+                // Sau khi hiện, có thể reset previousStatus về null để sạch sẽ (tùy chọn)
+                variant.setPreviousStatus(null);
+            }
+        }
+
+        variant.setUpdate_at(Instant.now());
+        variant = productVariantRepository.save(variant);
+        return variant.getStatus();
+    }
+
+    @Transactional
+    public void updateStatus(String variantId, ProductStatus status){
+        var now = Instant.now();
+        var variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+        variant.setStatus(status);
+        variant.setUpdate_at(now);
+        productVariantRepository.save(variant);
+
+        var product = variant.getProduct();
+        if(product.getStatus() == ProductStatus.INACTIVE){
+            product.setStatus(ProductStatus.ACTIVE);
+            productRepository.save(product);
+        }
+    }
 }

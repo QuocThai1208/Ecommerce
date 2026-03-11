@@ -5,7 +5,9 @@ import com.ecommerce.catalog_service.dto.request.ItemBatchDetailRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.ItemBatchDetailResponse;
+import com.ecommerce.catalog_service.dto.response.ProductResponse;
 import com.ecommerce.catalog_service.dto.response.ProductVariantResponse;
+import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.service.ProductVariantService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +67,14 @@ public class ProductVariantController {
         return ApiResponse.<ProductVariantResponse>builder()
                 .message("Get product variant success.")
                 .result(productVariantService.updateProductVariant(productVariantId, request))
+                .build();
+    }
+
+    @PutMapping("/{productVariantId}/update-visibility")
+    ApiResponse<ProductStatus> updateVisibility(@PathVariable String productVariantId, @RequestParam("action") String action){
+        return ApiResponse.<ProductStatus>builder()
+                .message("Cập nhật status thành công.")
+                .result(productVariantService.updateVisibility(productVariantId, action))
                 .build();
     }
 }

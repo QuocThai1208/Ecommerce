@@ -6,6 +6,7 @@ import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.ProductDetailResponse;
 import com.ecommerce.catalog_service.dto.response.ProductResponse;
 import com.ecommerce.catalog_service.dto.response.VariantInflowResponse;
+import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,14 @@ public class ProductController {
         return ApiResponse.<ProductResponse>builder()
                 .message("Update product success.")
                 .result(productService.updateProduct(productId, request))
+                .build();
+    }
+
+    @PutMapping("/{productId}/update-visibility")
+    ApiResponse<String> updateVisibility(@PathVariable String productId, @RequestParam("action") String action){
+        return ApiResponse.<String>builder()
+                .message("Cập nhật status thành công.")
+                .result(productService.updateVisibility(productId, action))
                 .build();
     }
 }

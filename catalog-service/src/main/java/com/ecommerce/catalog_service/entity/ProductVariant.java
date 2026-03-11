@@ -22,7 +22,7 @@ public class ProductVariant {
     Set<AttributeValue> attributeValues;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productSlug", nullable = false)
+    @JoinColumn(name = "product_slug",   nullable = false)
     Product product;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -31,6 +31,9 @@ public class ProductVariant {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     ProductStatus status = ProductStatus.INACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    ProductStatus previousStatus;
 
     long priceAdjustment;
     Instant created_at;

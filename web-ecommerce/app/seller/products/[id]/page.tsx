@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronRight, MapPin, Package, AlertCircle, Edit, Plus, Trash2, Eye, BarChart3, X, ChevronLeft } from 'lucide-react'
+import { ChevronRight, MapPin, Package, Edit, Plus, Trash2, BarChart3, ChevronLeft, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -23,6 +23,14 @@ import { useWarehouse } from '@/src/hooks/useWarehouse'
 import apiAxios from '@/src/api/apiAxios'
 import { ENDPOINTS } from '@/src/api/endpoints'
 import { LoadingOverlay } from '@/components/ui/loading-overlay'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { CategorySelector } from '@/components/ui/category-selector'
+import { useProduct } from '@/src/hooks/useProduct'
+import { editProduct } from '@/types/product'
+import { Badge } from '@/components/ui/badge'
+import { productService } from '@/src/service/productService'
+import { toast } from 'sonner'
 
 interface Warehouse {
     id: string
@@ -47,6 +55,7 @@ interface ProductVariant {
     sku: string
     name: string
     media: string
+    status: string
     priceAdjustment: number
     attributeValues: AttributeValue[]
 }
@@ -63,6 +72,7 @@ interface Product {
     name: string
     description: string
     categories: string[]
+    categoryIds: string[]
     images: string[]
     variants: ProductVariant[]
     warehouses: Warehouse[]
@@ -178,8 +188,36 @@ export default function ShopProductManager() {
     const router = useRouter();
     const { goToGenerateVariant, goToInflow } = useAppRouter();
     const { handleAdd } = useWarehouse();
+    const {
+        categories, editProduct,
+        loadCategories,
+    } = useProduct();
+    const [editFormData, setEditFormData] = useState<editProduct>({
+        name: "",
+        description: "",
+        categories: [] as string[],
+    });
 
+    const PRODUCT_STATUS: Record<string, string> = {
+        ACTIVE: 'Đang bán',
+        INACTIVE: 'Chưa nhập kho',
+        OUT_OF_STOCK: 'Hết hàng',
+        HIDDEN: 'Tạm ẩn',
+        DISCONTINUED: 'Ngừng kinh doanh'
+    }
 
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'ACTIVE':
+                return 'bg-green-100 text-green-800'
+            case 'OUT_OF_STOCK':
+                return 'bg-red-100 text-red-800'
+            case 'INACTIVE':
+                return 'bg-slate-100 text-slate-800'
+            default:
+                return 'bg-slate-100 text-slate-800'
+        }
+    }
 
     const loadProductDetail = async () => {
         try {
@@ -192,6 +230,7 @@ export default function ShopProductManager() {
 
     useEffect(() => {
         loadProductDetail();
+        loadCategories()
     }, [])
 
     useEffect(() => {
@@ -200,15 +239,22 @@ export default function ShopProductManager() {
         }
     }, [productDetail]);
 
+    useEffect(() => {
+        setEditFormData({
+            name: productDetail?.name || "",
+            description: productDetail?.description || "",
+            categories: productDetail?.categoryIds || [],
+        })
+    }, [productDetail]);
+
+
+    useEffect(() => {
+        console.log("edit: ", editFormData)
+    }, [editFormData]);
+
     if (!productDetail) {
         return <LoadingOverlay isLoading={true} />;
     }
-
-    // const [editFormData, setEditFormData] = useState({
-    //     name: productDetail.name,
-    //     description: productDetail.description,
-    //     category: productDetail.categories,
-    // })
 
     const getInventoryForVariant = (variantId: string) => {
         return productDetail.inventories.filter(inv => inv.productVariantId === variantId)
@@ -219,12 +265,33 @@ export default function ShopProductManager() {
     }
 
     const getStockStatus = (available: number) => {
-        if (available > 100) return { status: 'In Stock', color: 'text-green-600', bg: 'bg-green-50' }
-        if (available > 20) return { status: 'Low Stock', color: 'text-amber-600', bg: 'bg-amber-50' }
-        return { status: 'Critical', color: 'text-red-600', bg: 'bg-red-50' }
+        if (available = 0) return { status: 'Hết hàng', color: 'text-red-600', bg: 'bg-red-50' }
+        if (available > 1 && available < 10) return { status: 'Còn ít hàng', color: 'text-amber-600', bg: 'bg-amber-50' }
+        return { status: 'Còn hàng', color: 'text-green-600', bg: 'bg-green-50' }
     }
 
-    
+    const handleToggleStatusVariant = async (sku: string, action: string) => {
+        try {
+            const res = await productService.updateVariantVisibility(sku, action);
+            setProductDetail((prev) => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    variants: prev.variants.map((v) =>
+                        v.sku === sku
+                            ? { ...v, status: res?.result }
+                            : v
+                    )
+                }
+            });
+            toast.success(res.message)
+        } catch (e: any) {
+            const message = e.response?.data?.message || "Đã có lỗi xẩy ra vui lòng thử lại sau.";
+            console.log("Error at handleToggleStatus: ", e)
+            toast.error(message);
+        }
+
+    }
 
     return (
         <div>
@@ -309,67 +376,76 @@ export default function ShopProductManager() {
                                             Chỉnh sửa
                                         </Button>
                                     </DialogTrigger>
-                                    {/* <DialogContent className="sm:max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle>Chỉnh sửa</DialogTitle>
-                                        <DialogDescription>
-                                            Update product information and details
-                                        </DialogDescription>
-                                    </DialogHeader>
+                                    <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                                        <DialogHeader>
+                                            <DialogTitle>Chỉnh Sửa Thông Tin Sản Phẩm</DialogTitle>
+                                            <DialogDescription>
+                                                Cập nhật thông tin cơ bản của sản phẩm
+                                            </DialogDescription>
+                                        </DialogHeader>
 
-                                    <div className="space-y-4 py-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Product Name</label>
-                                            <input
-                                                type="text"
-                                                value={editFormData.name}
-                                                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                                                placeholder="Enter product name"
-                                            />
+                                        <div className="space-y-4 py-4">
+                                            {/* Tên sản phẩm */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="edit-name" className="text-foreground font-medium">
+                                                    Tên Sản Phẩm <span className="text-destructive">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="edit-name"
+                                                    type="text"
+                                                    value={editFormData.name}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                                                    placeholder="Ví dụ: Áo Sơ Mi Nam Cotton"
+                                                    className="border-border bg-input"
+                                                />
+                                            </div>
+
+                                            {/* Mô tả */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="edit-description" className="text-foreground font-medium">
+                                                    Mô Tả <span className="text-destructive">*</span>
+                                                </Label>
+                                                <textarea
+                                                    id="edit-description"
+                                                    value={editFormData.description}
+                                                    onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                                                    placeholder="Nhập mô tả sản phẩm..."
+                                                    className="w-full px-3 py-2 rounded-md border border-border bg-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary min-h-28 resize-none"
+                                                />
+                                            </div>
+
+                                            {/* Danh mục */}
+                                            <div className="space-y-3">
+                                                <Label className="text-foreground font-medium">
+                                                    Danh Mục <span className="text-destructive">*</span>
+                                                </Label>
+                                                <CategorySelector
+                                                    categories={categories}
+                                                    selectedCategoryIds={editFormData?.categories || []}
+                                                    onSelectChange={(selectedIds) => setEditFormData({ ...editFormData, categories: selectedIds })}
+                                                />
+                                            </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Category</label>
-                                            <input
-                                                type="text"
-                                                value={editFormData.category}
-                                                onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
-                                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                                                placeholder="Enter category"
-                                            />
+                                        <div className="flex gap-3 justify-end pt-4 border-t border-border">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setIsEditDialogOpen(false)}
+                                            >
+                                                Hủy
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                onClick={() => {
+                                                    editProduct(productId as string, editFormData)
+                                                    setIsEditDialogOpen(false)
+                                                }}
+                                            >
+                                                Lưu Thay Đổi
+                                            </Button>
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Description</label>
-                                            <textarea
-                                                value={editFormData.description}
-                                                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
-                                                className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary min-h-24 resize-none"
-                                                placeholder="Enter product description"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-3 justify-end">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setIsEditDialogOpen(false)}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            onClick={() => {
-                                                console.log('[v0] Product saved:', editFormData)
-                                                setIsEditDialogOpen(false)
-                                            }}
-                                        >
-                                            Save Changes
-                                        </Button>
-                                    </div>
-                                </DialogContent> */}
+                                    </DialogContent>
                                 </Dialog>
                                 <Link href="/analytics" className="flex-1">
                                     <Button variant="outline" className="flex-1 bg-transparent" size="sm">
@@ -386,9 +462,6 @@ export default function ShopProductManager() {
                                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{productDetail.categories}</p>
                                 <div className="flex items-start justify-between gap-4 mb-3">
                                     <h1 className="text-3xl font-bold text-foreground">{productDetail.name}</h1>
-                                    <Button variant="ghost" size="sm">
-                                        <Edit className="w-4 h-4" />
-                                    </Button>
                                 </div>
                                 <p className="text-sm text-muted-foreground leading-relaxed">{productDetail.description}</p>
                             </div>
@@ -413,7 +486,7 @@ export default function ShopProductManager() {
                             {/* Variants Management */}
                             <div className="border-t border-border pt-6">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-sm font-semibold text-foreground">Manage Variants</h3>
+                                    <h3 className="text-sm font-semibold text-foreground">Quản lý phân loại</h3>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
                                     {productDetail.variants.map((variant) => {
@@ -423,14 +496,36 @@ export default function ShopProductManager() {
                                             <button
                                                 key={variant.sku}
                                                 onClick={() => setSelectedVariant(variant)}
-                                                className={`p-3 rounded-lg border-2 transition-all text-left ${selectedVariant?.sku === variant.sku
+                                                className={`p-3 rounded-lg border-2 transition-all text-left flex items-start gap-3 ${selectedVariant?.sku === variant.sku
                                                     ? 'border-primary bg-primary/5'
                                                     : 'border-border hover:border-primary/30'
                                                     }`}
                                             >
-                                                <p className="text-xs font-medium text-muted-foreground mb-1">{variant.name}</p>
-                                                <p className="text-sm font-bold text-foreground">{variant.priceAdjustment.toLocaleString()} đ</p>
-                                                <p className={`text-xs font-medium mt-2 ${status.color}`}>{totalStock} cái</p>
+                                                <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 border border-border">
+                                                    {variant.media ? (
+                                                        <img
+                                                            src={variant.media}
+                                                            alt={variant.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground bg-secondary">
+                                                            No Img
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-medium text-muted-foreground mb-1 truncate">
+                                                        {variant.name}
+                                                    </p>
+                                                    <p className="text-sm font-bold text-foreground">
+                                                        {variant.priceAdjustment.toLocaleString()} đ
+                                                    </p>
+                                                    <p className={`text-[10px] font-medium mt-1 px-1.5 py-0.5 rounded-full inline-block ${status.bg} ${status.color}`}>
+                                                        {totalStock} cái
+                                                    </p>
+                                                </div>
                                             </button>
                                         )
                                     })}
@@ -518,25 +613,25 @@ export default function ShopProductManager() {
                             {/* Summary Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <Card className="p-6">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Available</p>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Sẳn có</p>
                                     <p className="text-3xl font-bold text-foreground">
                                         {getInventoryForVariant(selectedVariant?.sku || '').reduce((sum, inv) => sum + inv.quantityAvailable, 0)}
                                     </p>
                                 </Card>
                                 <Card className="p-6">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Reserved</p>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Đã đặt</p>
                                     <p className="text-3xl font-bold text-foreground">
                                         {getInventoryForVariant(selectedVariant?.sku || '').reduce((sum, inv) => sum + inv.quantityReserved, 0)}
                                     </p>
                                 </Card>
                                 <Card className="p-6">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Total Stock</p>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Tổng</p>
                                     <p className="text-3xl font-bold text-foreground">
                                         {getInventoryForVariant(selectedVariant?.sku || '').reduce((sum, inv) => sum + inv.quantityAvailable + inv.quantityReserved, 0)}
                                     </p>
                                 </Card>
                                 <Card className="p-6">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Stock Value</p>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Tổng giá trị</p>
                                     <p className="text-3xl font-bold text-foreground">
                                         {(getTotalStock(selectedVariant?.sku || '') * (selectedVariant?.priceAdjustment || 0)).toLocaleString()}đ
                                     </p>
@@ -565,6 +660,7 @@ export default function ShopProductManager() {
                                                 <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase">Thuộc tính</th>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase">Giá</th>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase">Số lượng</th>
+                                                <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase">Trạng thái</th>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold text-foreground uppercase">Hành động</th>
                                             </tr>
                                         </thead>
@@ -592,15 +688,32 @@ export default function ShopProductManager() {
                                                             <p className="font-semibold text-foreground">{variant.priceAdjustment.toLocaleString()}đ</p>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <p className="text-sm font-medium text-foreground">{totalStock} units</p>
+                                                            <p className="text-sm font-medium text-foreground">{totalStock} cái</p>
                                                         </td>
                                                         <td className="px-6 py-4">
+                                                            <Badge className={`${getStatusColor(variant.status)}`}>
+                                                                {PRODUCT_STATUS[variant.status]}
+                                                            </Badge>
+                                                        </td>
+
+                                                        <td className="px-6 py-4">
                                                             <div className="flex gap-2">
+                                                                <button
+                                                                onClick={() => {
+                                                                    const action = variant.status === "ACTIVE" ? "HIDE" : "SHOW"
+                                                                    handleToggleStatusVariant(variant.sku, action)
+                                                                }}
+                                                                    className="p-1.5 rounded hover:bg-slate-100 transition"
+                                                                    title={PRODUCT_STATUS[variant.status]}
+                                                                >
+                                                                    {variant.status === 'ACTIVE' ? (
+                                                                        <Eye className="w-4 h-4 text-slate-600" />
+                                                                    ) : (
+                                                                        <EyeOff className="w-4 h-4 text-slate-600" />
+                                                                    )}
+                                                                </button>
                                                                 <Button size="sm" variant="ghost">
                                                                     <Edit className="w-4 h-4" />
-                                                                </Button>
-                                                                <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
-                                                                    <Trash2 className="w-4 h-4" />
                                                                 </Button>
                                                             </div>
                                                         </td>

@@ -37,6 +37,13 @@ export interface Product {
   update_at: string
 }
 
+
+export interface editProduct {
+  name: string
+  description: string
+  categories: string[]
+}
+
 export interface Category {
   id: string;
   name: string;

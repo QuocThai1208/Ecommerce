@@ -20,9 +20,6 @@ export default function Header() {
             <Link href="/seller/dashboard" className="text-white hover:text-slate-600 transition">
               Kênh Người Bán
             </Link>
-            <Link href="/download" className="text-white hover:text-slate-600 transition">
-              Tải Ứng Dụng
-            </Link>
             <Link href="/connect" className="text-white hover:text-slate-600 transition flex items-center gap-1">
               Kết Nối
               <MessageCircle className="w-3 h-3" />

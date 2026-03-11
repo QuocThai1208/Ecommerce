@@ -18,6 +18,7 @@ public class ProductDetailResponse {
     String name;
     String description;
     Set<String> categories;
+    Set<String> categoryIds;
     Set<String> images;
     List<ProductVariantResponse> variants;
     List<WarehouseResponse> warehouses;

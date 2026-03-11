@@ -1,6 +1,7 @@
 package com.ecommerce.inventory_service.service;
 
 
+import com.ecommerce.event.dto.InflowEvent;
 import com.ecommerce.inventory_service.dto.request.*;
 import com.ecommerce.inventory_service.dto.response.InventoryTransactionResponse;
 import com.ecommerce.inventory_service.dto.response.ProductAssignment;
@@ -18,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class InventoryTransactionService {
     InventoryTransactionMapper inventoryTransactionMapper;
 
     InventoriesService inventoriesService;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     // Lấy danh sách transaction then invId
     public List<InventoryTransactionResponse> getAllTransactionByInventoryId(String inventoryId) {
@@ -55,6 +58,9 @@ public class InventoryTransactionService {
 
         var inventory = inventoriesRepository.findByProductVariantIdAndWarehouse(request.getProductVariantId(), warehouse)
                 .orElseGet(() -> {
+                    kafkaTemplate.send("inventory.inflow.first", InflowEvent.builder()
+                            .variantId(request.getProductVariantId())
+                            .build());
                     return inventoriesService.create(InventoriesRequest.builder()
                             .productVariantId(request.getProductVariantId())
                             .quantityAvailable(0)
@@ -69,8 +75,9 @@ public class InventoryTransactionService {
         transaction.setTransactionType(TransactionType.GOODS_RECEIPT);
         transaction.setCreated_at(Instant.now());
         transaction.setUpdate_at(Instant.now());
+        transaction = inventoryTransactionRepository.save(transaction);
 
-        return inventoryTransactionMapper.toInventoryTransactionResponse(inventoryTransactionRepository.save(transaction));
+        return inventoryTransactionMapper.toInventoryTransactionResponse(transaction);
     }
 
     // Đặt hàng trước

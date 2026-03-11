@@ -24,6 +24,7 @@ public class ProductVariantResponse {
     String sku;
     String name;
     String media;
+    String status;
     long priceAdjustment;
     Set<AttributeValueResponse> attributeValues;
 }

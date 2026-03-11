@@ -1,4 +1,4 @@
-import { ProductRequest } from "@/types/product";
+import { editProduct, ProductRequest } from "@/types/product";
 import apiAxios from "../api/apiAxios"
 import { ENDPOINTS } from "../api/endpoints"
 
@@ -35,4 +35,22 @@ export const productService = {
         }) as ApiResponse<any>;
         return res?.result;
     },
+    editProduct: async (id: string, data: editProduct) => {
+        const res = await apiAxios.put(ENDPOINTS.CATALOG.PRODUCT_DETAIL(id), data) as ApiResponse<any>;
+        return res?.result;
+    },
+    updateProductVisibility: async (slug: string, action: string) => {
+        const res = await apiAxios.put(ENDPOINTS.CATALOG.PRODUCT_UPDATE_VISIBILITY(slug),
+            null,
+            { params: { action } }
+        ) as ApiResponse<any>;
+        return res;
+    },
+    updateVariantVisibility: async (sku: string, action: string) => {
+        const res = await apiAxios.put(ENDPOINTS.CATALOG.VARIANT_UPDATE_VISIBILITY(sku),
+            null,
+            { params: { action } }
+        ) as ApiResponse<any>;
+        return res;
+    }
 }

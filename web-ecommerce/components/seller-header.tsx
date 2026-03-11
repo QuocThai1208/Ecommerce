@@ -27,19 +27,8 @@ export default function SellerHeader() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
               S
             </div>
-            <span className="hidden sm:inline font-bold text-lg text-slate-900">Seller Dashboard</span>
+            <span className="hidden sm:inline font-bold text-lg text-slate-900">Seller</span>
           </Link>
-
-          {/* Center: Search Bar */}
-          <div className="hidden md:flex items-center flex-1 mx-8">
-            <div className="w-full max-w-md">
-              <input
-                type="text"
-                placeholder="Tìm kiếm sản phẩm, đơn hàng..."
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-            </div>
-          </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2 sm:gap-4">

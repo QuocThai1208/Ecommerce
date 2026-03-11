@@ -35,6 +35,9 @@ public class Product {
     @Builder.Default
     ProductStatus status = ProductStatus.INACTIVE;
 
+    @Enumerated(EnumType.STRING)
+    ProductStatus previousStatus;
+
     @ManyToMany(fetch = FetchType.LAZY)
     Set<Category> categories;
     Instant created_at;

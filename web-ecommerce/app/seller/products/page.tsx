@@ -71,7 +71,7 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <SellerHeader />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 mb-5">
         <SellerSidebar />
 
         <div className="flex-1 overflow-x-hidden">
@@ -208,7 +208,10 @@ export default function ProductsPage() {
                           <td className="px-4 sm:px-6 py-4">
                             <div className="flex items-center justify-center gap-2">
                               <button
-                                onClick={() => handleToggleStatus(product.slug)}
+                                onClick={() => {
+                                  const action = product.status === 'ACTIVE' ? 'HIDE' : 'SHOW'
+                                  handleToggleStatus(product.slug, action)
+                                }}
                                 className="p-1.5 rounded hover:bg-slate-100 transition"
                                 title={PRODUCT_STATUS[product.status]}
                               >
