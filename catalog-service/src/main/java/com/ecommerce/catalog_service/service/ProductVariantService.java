@@ -19,7 +19,6 @@ import com.ecommerce.catalog_service.repository.ProductMediaRepository;
 import com.ecommerce.catalog_service.repository.ProductRepository;
 import com.ecommerce.catalog_service.repository.ProductVariantRepository;
 import com.ecommerce.catalog_service.repository.httpClient.FileClient;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

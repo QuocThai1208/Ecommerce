@@ -22,6 +22,10 @@ export const useAppRouter = () => {
         router.push(`/seller/products/${productId}/inflow`)
     }
 
+    const goToProductDetail = (slug : string) => {
+        router.push(`/product/${slug}`)
+    }
+
     const goBack = () => {
         router.back();
     }
@@ -32,6 +36,7 @@ export const useAppRouter = () => {
         goToSellerDashBoard,
         goToGenerateVariant,
         goToInflow,
-        goBack
+        goBack,
+        goToProductDetail
     }
 }

@@ -1,12 +1,8 @@
 package com.ecommerce.catalog_service.controller;
 
 import com.ecommerce.catalog_service.dto.ApiResponse;
-import com.ecommerce.catalog_service.dto.request.ProductRequest;
 import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
-import com.ecommerce.catalog_service.dto.response.ProductDetailResponse;
-import com.ecommerce.catalog_service.dto.response.ProductResponse;
-import com.ecommerce.catalog_service.dto.response.VariantInflowResponse;
-import com.ecommerce.catalog_service.enums.ProductStatus;
+import com.ecommerce.catalog_service.dto.response.*;
 import com.ecommerce.catalog_service.service.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +28,14 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping
+    ApiResponse<List<ProductDisplayResponse>> getProductDisplay(){
+        return ApiResponse.<List<ProductDisplayResponse>>builder()
+                .message("Lấy danh sách sản phẩm thành công.")
+                .result(productService.getProductDisplay())
+                .build();
+    }
+
     @GetMapping("/my-product")
     ApiResponse<List<ProductResponse>> getAllProductByBrandId(){
         return ApiResponse.<List<ProductResponse>>builder()
@@ -45,6 +49,14 @@ public class ProductController {
         return ApiResponse.<ProductDetailResponse>builder()
                 .message("Lấy thông tin sản phẩm thành công.")
                 .result(productService.getProduct(productId))
+                .build();
+    }
+
+    @GetMapping("/{productId}/display")
+    ApiResponse<ProductDisplayDetailResponse> getProductDisplay(@PathVariable String productId){
+        return ApiResponse.<ProductDisplayDetailResponse>builder()
+                .message("Lấy thông tin sản phẩm thành công.")
+                .result(productService.getProductDisplayDetail(productId))
                 .build();
     }
 

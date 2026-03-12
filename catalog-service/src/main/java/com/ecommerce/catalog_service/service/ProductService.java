@@ -1,12 +1,8 @@
 package com.ecommerce.catalog_service.service;
 
-import com.ecommerce.catalog_service.dto.request.ProductMediaRequest;
 import com.ecommerce.catalog_service.dto.request.ProductRequest;
 import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
-import com.ecommerce.catalog_service.dto.response.ProductDetailResponse;
-import com.ecommerce.catalog_service.dto.response.ProductResponse;
-import com.ecommerce.catalog_service.dto.response.ProductVariantResponse;
-import com.ecommerce.catalog_service.dto.response.VariantInflowResponse;
+import com.ecommerce.catalog_service.dto.response.*;
 import com.ecommerce.catalog_service.entity.Category;
 import com.ecommerce.catalog_service.entity.Product;
 import com.ecommerce.catalog_service.entity.ProductMedia;
@@ -14,6 +10,7 @@ import com.ecommerce.catalog_service.entity.ProductVariant;
 import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.exception.AppException;
 import com.ecommerce.catalog_service.exception.ErrorCode;
+import com.ecommerce.catalog_service.mapper.AttributeValueMapper;
 import com.ecommerce.catalog_service.mapper.ProductMapper;
 import com.ecommerce.catalog_service.mapper.ProductVariantMapper;
 import com.ecommerce.catalog_service.repository.*;
@@ -24,15 +21,14 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -49,6 +45,7 @@ public class ProductService {
     ProductMediaRepository mediaRepository;
     ProductVariantRepository variantRepository;
 
+    AttributeValueMapper attributeValueMapper;
     ProductMapper productMapper;
     ProductVariantMapper variantMapper;
 
@@ -259,5 +256,59 @@ public class ProductService {
         product = productRepository.save(product);
 
         return product.getStatus().name();
+    }
+
+    public List<ProductDisplayResponse> getProductDisplay(){
+        var product = productRepository.findTop12By();
+        var response = productMapper.toProductDisplayResponseList(product);
+
+        response.forEach(res -> {
+            var media = mediaRepository.findByProductSlugAndIsMainTrue(res.getSlug())
+                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_MEDIA_NOT_EXISTED));
+            res.setMainImage(media.getMediaUrl());
+        });
+        return response;
+    }
+
+    public ProductDisplayDetailResponse getProductDisplayDetail(String productSlug){
+        var product = productRepository.findById(productSlug)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        var response = productMapper.toProductDisplayDetailResponse(product);
+
+        var media = mediaRepository.findAllByProductSlug(productSlug);
+
+        var variants = variantRepository.findAllByProductSlugWithDetails(productSlug);
+
+        var variantResponse = variantMapper.toVariantDisplayResponseList(variants);
+
+
+        var variantIds = variants.stream().map(ProductVariant::getSku).collect(Collectors.toSet());
+
+        try{
+            var res =  inventoryClient.getTotalByVariantIds(variantIds);
+            var result = res.getResult();
+            Map<String, Long> stockMap = result.stream()
+                    .collect(Collectors.toMap(TotalAvailableResponse::getVariantId, TotalAvailableResponse::getTotalAvailable));
+            variantResponse.forEach(v -> {
+                v.setQuantityAvailable(stockMap.getOrDefault(v.getSku(), 0L));
+            });
+
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
+        var attribute = variants.stream()
+                .flatMap(v -> v.getAttributeValues().stream())
+                .collect(Collectors.toSet());
+
+        response.setImages(media.stream()
+                .map(ProductMedia::getMediaUrl)
+                .toList());
+
+        response.setOptions(attributeValueMapper.toProductOptionResponseList(attribute));
+
+        response.setVariants(variantResponse);
+
+        return response;
     }
 }

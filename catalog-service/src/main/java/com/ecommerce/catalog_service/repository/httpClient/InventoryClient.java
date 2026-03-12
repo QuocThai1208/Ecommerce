@@ -2,10 +2,7 @@ package com.ecommerce.catalog_service.repository.httpClient;
 
 import com.ecommerce.catalog_service.configuration.AuthenticationRequestInterceptor;
 import com.ecommerce.catalog_service.dto.ApiResponse;
-import com.ecommerce.catalog_service.dto.response.FileResponse;
-import com.ecommerce.catalog_service.dto.response.InventoriesResponse;
-import com.ecommerce.catalog_service.dto.response.MultipleFileResponse;
-import com.ecommerce.catalog_service.dto.response.WarehouseResponse;
+import com.ecommerce.catalog_service.dto.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -24,4 +21,7 @@ public interface InventoryClient {
 
     @PostMapping(value = "/inventory/inventories/by-variants")
     ApiResponse<List<InventoriesResponse>> getByVariantIds(@RequestBody Set<String> variantIds);
+
+    @PostMapping(value = "/inventory/inventories/by-variants/total-available")
+    ApiResponse<List<TotalAvailableResponse>> getTotalByVariantIds(@RequestBody Set<String> variantIds);
 }

@@ -15,4 +15,6 @@ public interface InventoriesMapper {
     @Mapping(target = "warehouseId", source = "warehouse.id")
     InventoriesResponse toInventoriesResponse(Inventories inventories);
     List<InventoriesResponse> toInventoriesResponseList(List<Inventories> inventories);
+
+
 }

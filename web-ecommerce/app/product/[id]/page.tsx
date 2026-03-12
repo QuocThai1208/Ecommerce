@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Heart,
     Facebook,
@@ -17,102 +17,88 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { productService } from "@/src/service/productService"
+
+
+interface value {
+    id: string,
+    value: string,
+    valueCode: string
+}
+
+interface option {
+    name: string,
+    values: value[]
+}
+
+
+interface variant {
+    sku: string,
+    name: string,
+    priceAdjustment: number,
+    quantityAvailable: number,
+    urlMedia: string,
+    status: string,
+    values: string[]
+
+}
+
+interface product {
+    slug: string,
+    name: string,
+    description: string,
+    basePrice: number,
+    originalPrice: number,
+    discount: number,
+    rating: number,
+    reviews: number,
+    sold: number,
+    shop: string,
+    images: string[],
+    options: option[],
+    variants: variant[]
+}
 
 export default function ProductDetail() {
+    const params = useParams();
+    const productId = params.id;
     const [selectedValues, setSelectedValues] = useState<Record<string, string>>({})
     const [quantity, setQuantity] = useState(1)
     const [mainImage, setMainImage] = useState(0)
     const [wishlist, setWishlist] = useState(314)
     const [isWishlisted, setIsWishlisted] = useState(false)
+    const [product, setProduct] = useState<product>({
+        slug: '',
+        name: '',
+        description: '',
+        basePrice: 0,
+        originalPrice: 0,
+        discount: 0,
+        rating: 0,
+        reviews: 0,
+        sold: 0,
+        shop: '',
+        images: [],
+        options: [],
+        variants: []
+    });
     const router = useRouter();
 
-    const product = {
-        id: 1,
-        name: "QUẦN NGU VAZCO - CỰC KỲ LINH HOẠT, MÃ Q27 MỀ THÁI...",
-        basePrice: 29800,
-        originalPrice: 46000,
-        discount: 34,
-        rating: 4.8,
-        reviews: 818,
-        sold: 4000,
-        shop: "VAZCO Shop",
-        images: ["/black-shorts.jpg", "/product-detail-2.jpg", "/product-detail-3.jpg", "/product-detail-4.jpg"],
-        options: [
-            {
-                name: "MÀU SẮC",
-                values: [
-                    { id: "col1", value: "Combo 5 Cái", code: "combo5", attributeName: "Màu sắc" },
-                    { id: "col2", value: "Combo 3 Cái", code: "combo3", attributeName: "Màu sắc" },
-                    { id: "col3", value: "Đen", code: "black", attributeName: "Màu sắc" },
-                    { id: "col4", value: "Xanh Đen", code: "blue", attributeName: "Màu sắc" },
-                    { id: "col5", value: "Xám đậm", code: "gray-dark", attributeName: "Màu sắc" },
-                ]
-            },
-            {
-                name: "SIZE",
-                values: [
-                    { id: "sz1", value: "XL", code: "XL", attributeName: "Size" },
-                    { id: "sz2", value: "XXL", code: "XXL", attributeName: "Size" },
-                    { id: "sz3", value: "3XL", code: "3XL", attributeName: "Size" },
-                    { id: "sz4", value: "4XL", code: "4XL", attributeName: "Size" },
-                ]
-            }
-        ],
-        variants: [
-            {
-                id: "var1",
-                name: "Combo 5 - XL",
-                priceAdjustment: 200000,
-                quantityAvailable: 120,
-                urlMedia: "/black-shorts.jpg",
-                status: "ACTIVE",
-                values: ["combo5", "XL"]
-            },
-            {
-                id: "var2",
-                name: "Combo 5 - XXL",
-                priceAdjustment: 5000,
-                quantityAvailable: 85,
-                urlMedia: "/product-detail-2.jpg",
-                status: "ACTIVE",
-                values: ["combo5", "XXL"]
-            },
-            {
-                id: "var3",
-                name: "Đen - XL",
-                priceAdjustment: -2000,
-                quantityAvailable: 200,
-                urlMedia: "/product-detail-3.jpg",
-                status: "ACTIVE",
-                values: ["black", "XL"]
-            },
-            {
-                id: "var4",
-                name: "Xanh Đen - XXL",
-                priceAdjustment: 3000,
-                quantityAvailable: 45,
-                urlMedia: "/product-detail-4.jpg",
-                status: "ACTIVE",
-                values: ["blue", "XXL"]
-            },
-            {
-                id: "var5",
-                name: "Xám đậm - 3XL",
-                priceAdjustment: 8000,
-                quantityAvailable: 0,
-                urlMedia: "/black-shorts.jpg",
-                status: "OUT_OF_STOCK",
-                values: ["gray-dark", "3XL"]
-            },
-        ]
-    }
-
     // Find current selected variant
-    const selectedVariant = product.variants.find(v =>
+    const selectedVariant = product?.variants.find(v =>
         v.values.every(val => Object.values(selectedValues).includes(val))
     )
+
+    const loadProductDisplay = async () => {
+        try{
+            const result = await productService.loadProductDetailDisplay(productId as string);
+            setProduct(result);
+        }catch(e){
+            console.log("Error at loadProductDisplay: ", e)
+        }
+    }
 
     const currentPrice = selectedVariant
         ? product.basePrice + selectedVariant.priceAdjustment
@@ -128,13 +114,17 @@ export default function ProductDetail() {
         { id: 5, name: "Quần Béo Rộng Nam 2024", price: 189000, image: "/pants-3.jpg" },
     ]
 
+    useEffect(() => {
+        loadProductDisplay();
+    }, [])
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Breadcrumb */}
             <div className="bg-white border-b border-border">
                 <Button
                     onClick={() => router.back()}
-                    variant="ghost" size="sm" className="mb-4">
+                    variant="ghost" size="sm" className="my-2 ml-4">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Quay lại
                 </Button>
@@ -252,7 +242,7 @@ export default function ProductDetail() {
                                     </> : <>
                                         <span className="text-3xl font-bold text-primary">₫{currentPrice.toLocaleString("vi-VN")}</span>
                                         <span className="text-sm text-muted-foreground line-through">
-                                            {product.originalPrice.toLocaleString("vi-VN")}đ
+                                            {product.originalPrice ? product.originalPrice.toLocaleString("vi-VN") : 0}đ
                                         </span>
                                         <span className="bg-primary/10 text-primary text-xs font-bold px-1.5 py-0.5 rounded">
                                             -{product.discount}%
@@ -293,7 +283,7 @@ export default function ProductDetail() {
                                     <div className="text-xs font-semibold text-foreground mb-2">{option.name}</div>
                                     <div className="flex flex-wrap gap-2">
                                         {option.values.map((value) => {
-                                            const isSelected = selectedValues[option.name] === value.code
+                                            const isSelected = selectedValues[option.name] === value.valueCode
                                             return (
                                                 <button
                                                     key={value.id}
@@ -307,7 +297,7 @@ export default function ProductDetail() {
                                                             // If not selected, select it
                                                             setSelectedValues({
                                                                 ...selectedValues,
-                                                                [option.name]: value.code
+                                                                [option.name]: value.valueCode
                                                             })
                                                         }
                                                     }}
@@ -429,49 +419,18 @@ export default function ProductDetail() {
                         {[{
                             label: "Danh Mục",
                             value: "Shopee > Thời Trang Nam > Quần Short > Quần Bơi/Quần Short",
-                        }, {
-                            label: "Số lượng hàng khuyến mãi",
-                            value: "79",
-                        }, {
-                            label: "Số sản phẩm còn tại",
-                            value: "CÒN HÀNG",
-                        }, {
+                        },  {
                             label: "Thương hiệu",
                             value: "VAZCO",
-                        }, {
-                            label: "Màu",
-                            value: "Trơn",
-                        }, {
+                        },  {
                             label: "Phong cách",
                             value: "Thể thao, Cổ bản, Hàn Quốc, Đường phố",
-                        }, {
-                            label: "Tail Fit",
-                            value: "Có",
-                        }, {
-                            label: "Xuất xứ",
+                        }, { label: "Xuất xứ",
                             value: "Việt Nam",
-                        }, {
-                            label: "Dip",
-                            value: "Hàng Ngày",
-                        }, {
-                            label: "Rã lôn",
-                            value: "Có",
-                        }, {
-                            label: "Bền eo",
-                            value: "Giữa eo",
-                        }, {
+                        },  {
                             label: "Chất liệu",
                             value: "Mè Thái",
-                        }, {
-                            label: "Loại quần short",
-                            value: "Basic",
-                        }, {
-                            label: "Tên tổ chức chủ trách nhiệm sản xuất",
-                            value: "VAZCO",
-                        }, {
-                            label: "Địa chỉ tổ chức chủ trách nhiệm sản xuất",
-                            value: "F1/206 Hương Lộ 80, Vĩnh Lộc A, Bình Chánh",
-                        }].map((item, idx) => (
+                        },].map((item, idx) => (
                             <div key={idx} className="flex items-start border-b border-gray-200 py-2 last:border-b-0">
                                 <div className="w-1/3 text-xs text-muted-foreground font-medium">{item.label}</div>
                                 <div className="w-2/3 text-xs text-foreground">{item.value}</div>

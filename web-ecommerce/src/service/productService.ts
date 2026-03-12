@@ -52,5 +52,13 @@ export const productService = {
             { params: { action } }
         ) as ApiResponse<any>;
         return res;
+    },
+    loadProductDisplay: async () => {
+        const res = (await apiAxios.get(ENDPOINTS.CATALOG.PRODUCT) as ApiResponse<any>);
+        return res?.result;
+    },
+    loadProductDetailDisplay: async (productSlug : string) => {
+        const res = await apiAxios.get(ENDPOINTS.CATALOG.PRODUCT_DETAIL_DISPLAY(productSlug))  as ApiResponse<any>;
+        return res?.result;
     }
 }

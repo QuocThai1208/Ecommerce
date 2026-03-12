@@ -25,5 +25,6 @@ export const profileService = {
     updateProfile: async (updatedData: FormData) => {
         const response = await apiAxios.put(ENDPOINTS.PROFILES.UPDATE, updatedData) as ApiResponse<any>;
         return response.result;
-    }
+    },
+    
 }

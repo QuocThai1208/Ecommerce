@@ -1,14 +1,48 @@
+"use client"
+
 import Footer from "@/components/footer"
 import Header from "@/components/header"
+import { LoadingOverlay } from "@/components/ui/loading-overlay"
+import { useAppRouter } from "@/src/router/useAppRouter"
+import { productService } from "@/src/service/productService"
 import { ArrowRight, Zap, Truck, ShieldCheck, RefreshCcw, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+
+interface productDisplay {
+  slug: string,
+  name: string,
+  description: string,
+  basePrice: number,
+  mainImage: string
+}
 
 export default function HomePage() {
   const terracottaColor = "#bc5a33"
+  const [products, setProducts] = useState<productDisplay[]>([]);
+  const [loading, setLoading] = useState(false);
+  const {goToProductDetail} = useAppRouter();
+
+  const loadProduct = async () => {
+    try{
+      setLoading(true)
+      const result = await productService.loadProductDisplay();
+      setProducts(result)
+    }catch(e){
+      console.log("Error at load products: ", e)
+    }finally{
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadProduct();
+  },[])
 
   return (
     <main className="flex-1 bg-[#f5f5f5]">
       <Header />
+      <LoadingOverlay isLoading={loading} />
 
       <div className="container mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
         {/* Banner Section - Tối ưu cho mobile */}
@@ -137,26 +171,27 @@ export default function HomePage() {
         {/* Suggestion Products - Responsive grid */}
         <section className="space-y-3 md:space-y-4">
           <div
-            className="bg-white p-3 md:p-4 sticky top-14 md:top-20 z-10 shadow-sm flex items-center justify-center"
+            className="bg-white text-primary p-3 md:p-4 top-14 md:top-20 z-10 shadow-sm flex items-center justify-center"
             style={{ borderBottom: `4px solid ${terracottaColor}` }}
           >
             <h2
               className="text-sm md:text-lg font-bold uppercase pb-1"
-              style={{ color: terracottaColor, borderBottom: `2px solid ${terracottaColor}` }}
+              style={{borderBottom: `2px solid ${terracottaColor}` }}
             >
               Gợi Ý Hôm Nay
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-sm overflow-hidden hover:shadow-lg transition-all border border-gray-100 cursor-pointer group flex flex-col h-full hover:border-[#bc5a33]"
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {products?.map((product) => (
+              <button
+              onClick={() => goToProductDetail(product.slug)}
+                key={product.slug}
+                className="text-left bg-white rounded-sm overflow-hidden hover:shadow-lg transition-all border border-gray-100 cursor-pointer group flex flex-col h-full hover:border-[#bc5a33]"
               >
                 <div className="aspect-square relative overflow-hidden bg-gray-50">
                   <img
-                    src={`/ecom-product-.jpg?height=250&width=250&query=ecom product ${i}`}
+                    src={product?.mainImage}
                     alt="Product"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -170,19 +205,19 @@ export default function HomePage() {
                 </div>
                 <div className="p-2 space-y-1.5 md:space-y-2">
                   <h3 className="text-[11px] md:text-xs line-clamp-2 text-gray-800 leading-tight">
-                    Sản phẩm chất lượng cao, thiết kế hiện đại tông màu cam đất Terracotta cho phong cách đa dạng...
+                    {product?.name}
                   </h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] bg-red-100 text-red-500 px-1 border border-red-200">Rẻ vô địch</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-sm md:text-base" style={{ color: terracottaColor }}>
-                      đ150.000
+                      {product?.basePrice.toLocaleString()} đ
                     </span>
                     <span className="text-[9px] md:text-[10px] text-gray-400">Đã bán 1.2k</span>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 

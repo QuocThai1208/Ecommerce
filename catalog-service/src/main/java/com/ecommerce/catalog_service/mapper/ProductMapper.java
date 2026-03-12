@@ -3,6 +3,8 @@ package com.ecommerce.catalog_service.mapper;
 import com.ecommerce.catalog_service.dto.request.ProductRequest;
 import com.ecommerce.catalog_service.dto.request.ProductUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.ProductDetailResponse;
+import com.ecommerce.catalog_service.dto.response.ProductDisplayDetailResponse;
+import com.ecommerce.catalog_service.dto.response.ProductDisplayResponse;
 import com.ecommerce.catalog_service.dto.response.ProductResponse;
 import com.ecommerce.catalog_service.entity.Product;
 import org.mapstruct.Mapper;
@@ -28,4 +30,10 @@ public interface ProductMapper {
 
     @Mapping(target = "categories", ignore = true)
     void updateProduct(@MappingTarget Product product, ProductUpdateRequest request);
+
+    ProductDisplayResponse toProductDisplayResponse(Product product);
+    List<ProductDisplayResponse> toProductDisplayResponseList(List<Product> products);
+
+    ProductDisplayDetailResponse toProductDisplayDetailResponse(Product product);
+
 }

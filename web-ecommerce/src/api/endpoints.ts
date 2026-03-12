@@ -39,6 +39,7 @@ export const ENDPOINTS = {
     CATEGORIES: "/catalog/categories",
     PRODUCT: "/catalog/products",
     PRODUCT_DETAIL: (id : string) => `/catalog/products/${id}`,
+    PRODUCT_DETAIL_DISPLAY: (id : string) => `/catalog/products/${id}/display`,
     PRODUCT_UPDATE_VISIBILITY: (id : string) => `/catalog/products/${id}/update-visibility`,
     VARIANT_UPDATE_VISIBILITY: (id : string) => `/catalog//product-variants/${id}/update-visibility`,
     VARIANTS: "/catalog/product-variants",

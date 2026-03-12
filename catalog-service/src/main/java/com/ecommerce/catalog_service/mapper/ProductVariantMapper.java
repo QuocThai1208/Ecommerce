@@ -4,6 +4,7 @@ import com.ecommerce.catalog_service.dto.request.ProductVariantRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.AttributeValueResponse;
 import com.ecommerce.catalog_service.dto.response.ProductVariantResponse;
+import com.ecommerce.catalog_service.dto.response.VariantDisplayResponse;
 import com.ecommerce.catalog_service.dto.response.VariantInflowResponse;
 import com.ecommerce.catalog_service.entity.AttributeValue;
 import com.ecommerce.catalog_service.entity.ProductVariant;
@@ -34,4 +35,16 @@ public interface ProductVariantMapper {
     VariantInflowResponse toVariantInflowResponse(ProductVariant variant);
 
     List<VariantInflowResponse> toVariantInflowResponseList(List<ProductVariant> variants);
+
+    @Mapping(target = "urlMedia", source = "productMedia.mediaUrl")
+    @Mapping(target = "quantityAvailable", ignore = true)
+    @Mapping(target = "values", source = "attributeValues")
+    VariantDisplayResponse toVariantDisplayResponse(ProductVariant variant);
+
+    List<VariantDisplayResponse> toVariantDisplayResponseList(List<ProductVariant> variants);
+
+    default List<String> mapAttributeValues(Set<AttributeValue> values){
+        if (values==null) return null;
+        return values.stream().map(AttributeValue::getValueCode).toList();
+    }
 }

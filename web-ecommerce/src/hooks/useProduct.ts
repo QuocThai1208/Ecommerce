@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { productService } from "../service/productService";
-import { CategoryResponse, ProductRequest, Product, editProduct } from "@/types/product";
+import { CategoryResponse, Product, editProduct } from "@/types/product";
 import { toast } from "sonner";
 import { useAppRouter } from "../router/useAppRouter";
 
@@ -69,8 +69,6 @@ export const useProduct = () => {
         }
 
     }
-
-    
 
     const handleDeleteProduct = (slug: string) => {
         if (window.confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) {

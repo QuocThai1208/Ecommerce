@@ -4,6 +4,7 @@ import com.ecommerce.inventory_service.dto.ApiResponse;
 import com.ecommerce.inventory_service.dto.request.CheckRequest;
 import com.ecommerce.inventory_service.dto.response.InventoriesResponse;
 import com.ecommerce.inventory_service.dto.response.InventoryTransactionResponse;
+import com.ecommerce.inventory_service.dto.response.TotalAvailableResponse;
 import com.ecommerce.inventory_service.repository.InventoriesRepository;
 import com.ecommerce.inventory_service.service.InventoriesService;
 import com.ecommerce.inventory_service.service.InventoryTransactionService;
@@ -36,6 +37,14 @@ public class InventoriesController {
         return ApiResponse.<List<InventoriesResponse>>builder()
                 .message("Lấy danh sách tồn kho thành công.")
                 .result(inventoriesService.getByVariantId(variantIds))
+                .build();
+    }
+
+    @PostMapping("/by-variants/total-available")
+    ApiResponse<List<TotalAvailableResponse>> getTotalByVariantIds(@RequestBody Set<String> variantIds){
+        return ApiResponse.<List<TotalAvailableResponse>>builder()
+                .message("Lấy danh sách tồn kho thành công.")
+                .result(inventoriesService.getTotalAvailable(variantIds))
                 .build();
     }
 

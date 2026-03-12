@@ -3,6 +3,7 @@ package com.ecommerce.inventory_service.service;
 import com.ecommerce.inventory_service.dto.request.CheckRequest;
 import com.ecommerce.inventory_service.dto.request.InventoriesRequest;
 import com.ecommerce.inventory_service.dto.response.InventoriesResponse;
+import com.ecommerce.inventory_service.dto.response.TotalAvailableResponse;
 import com.ecommerce.inventory_service.entity.Inventories;
 import com.ecommerce.inventory_service.exception.AppException;
 import com.ecommerce.inventory_service.exception.ErrorCode;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +105,23 @@ public class InventoriesService {
     public List<InventoriesResponse> getByVariantId(Set<String> variantIds){
         var inventories = inventoriesRepository.findAllByProductVariantIdIn(variantIds);
         return inventoriesMapper.toInventoriesResponseList(inventories);
+    }
+
+    public List<TotalAvailableResponse> getTotalAvailable(Set<String> variantIds){
+        var inventories = inventoriesRepository.findAllByProductVariantIdIn(variantIds);
+
+        Map<String, Long> stockMap = inventories.stream()
+                .collect(Collectors.groupingBy(
+                        Inventories::getProductVariantId,
+                        Collectors.summingLong(Inventories::getQuantityAvailable)
+                ));
+
+        return stockMap.entrySet().stream()
+                .map(entry -> {
+                    return TotalAvailableResponse.builder()
+                            .variantId(entry.getKey())
+                            .totalAvailable(entry.getValue())
+                            .build();
+                }).toList();
     }
 }
