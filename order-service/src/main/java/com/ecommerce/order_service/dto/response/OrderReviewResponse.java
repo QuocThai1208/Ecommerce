@@ -1,11 +1,10 @@
 package com.ecommerce.order_service.dto.response;
 
-import com.ecommerce.order_service.enums.OrderStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.List;
+
 
 @Data
 @NoArgsConstructor
@@ -13,9 +12,9 @@ import java.time.Instant;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderReviewResponse {
-    BigDecimal subtotalAmount;
-    BigDecimal discountAmount;
-    BigDecimal shippingCost;
-    BigDecimal taxAmount;
-    BigDecimal finalAmount;
+    String brandId;
+    String brandName;
+    String badge;
+    long feeShip;
+    List<ProductReviewResponse> products;
 }

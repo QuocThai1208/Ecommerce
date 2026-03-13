@@ -1,4 +1,4 @@
-package com.ecommerce.payment_service.dto.request;
+package com.ecommerce.order_service.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class ProductCheckoutRequest {
+public class ProductPaymentRequest {
     String productName;
     long quantity;
     long amount;

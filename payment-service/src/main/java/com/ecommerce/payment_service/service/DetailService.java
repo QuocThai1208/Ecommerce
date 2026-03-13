@@ -2,6 +2,7 @@ package com.ecommerce.payment_service.service;
 
 import com.ecommerce.payment_service.dto.request.TransactionDetailRequest;
 import com.ecommerce.payment_service.entity.Transaction;
+import com.ecommerce.payment_service.enums.TransactionStatus;
 import com.ecommerce.payment_service.mapper.DetailMapper;
 import com.ecommerce.payment_service.repository.DetailRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class DetailService {
         var now = Instant.now();
         details.forEach(detail ->{
             detail.setTransaction(transaction);
+            detail.setStatus(TransactionStatus.PENDING);
             detail.setCreatedAt(now);
         });
         detailRepository.saveAll(details);

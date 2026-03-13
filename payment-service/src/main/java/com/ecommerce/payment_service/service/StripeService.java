@@ -1,6 +1,6 @@
 package com.ecommerce.payment_service.service;
 
-import com.ecommerce.payment_service.dto.request.ProductCheckoutRequest;
+import com.ecommerce.payment_service.dto.request.ProductPaymentRequest;
 import com.ecommerce.payment_service.dto.response.StripeResponse;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -32,7 +32,7 @@ public class StripeService {
     // request -> productName, amount, quantity, transactionId, orderId
     // response -> sessionId, sessionUrl
     public StripeResponse checkout(
-            Set<ProductCheckoutRequest> requestList,
+            Set<ProductPaymentRequest> requestList,
             String transactionId,
             List<String> orderIds){
         Stripe.apiKey = secretKey;
@@ -61,8 +61,8 @@ public class StripeService {
         SessionCreateParams params = SessionCreateParams.builder()
                 .addAllLineItem(lineItems)
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:3000/success")
-                .setCancelUrl("http://localhost:3000/cancel")
+                .setSuccessUrl("http://localhost:3000/payment/result/success")
+                .setCancelUrl("http://localhost:3000/payment/result/cancel")
                 .putMetadata("transaction_id", transactionId)
                 .putMetadata("order_ids", joinedOrderIds)
                 .build();

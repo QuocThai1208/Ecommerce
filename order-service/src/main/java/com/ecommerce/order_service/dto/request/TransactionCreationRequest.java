@@ -17,9 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class TransactionCreationRequest {
-    String orderId;  // id đơn hàng
     String userId; // id khách hàng
-    BigDecimal amount; // số tiền giao dịch
     MethodType method; // phương thức thanh toán
-    Set<ProductCheckoutRequest> products; // danh sách sản phẩm thanh toán
+    List<TransactionDetailRequest> transactionDetailRequests;
 }

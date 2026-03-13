@@ -8,6 +8,7 @@ import com.ecommerce.inventory_service.dto.response.ProductAssignment;
 import com.ecommerce.inventory_service.dto.response.WarehouseBestResponse;
 import com.ecommerce.inventory_service.entity.Inventories;
 import com.ecommerce.inventory_service.entity.InventoryTransaction;
+import com.ecommerce.inventory_service.entity.Warehouse;
 import com.ecommerce.inventory_service.exception.AppException;
 import com.ecommerce.inventory_service.exception.ErrorCode;
 import com.ecommerce.inventory_service.mapper.InventoryTransactionMapper;
@@ -264,12 +265,18 @@ public class InventoryTransactionService {
 
         Map<String, Map<String, Long>> warehouseStockMap = new LinkedHashMap<>();
 
+        Map<String, String> warehouseByBrandMap = new HashMap<>();
+
         // Tính khoảng cách 1 lần duy nhất cho mỗi kho
         Map<String, Double> distanceMap = new HashMap<>();
 
         // Gom nhóm và tính distance
         availableStocks.forEach(inv -> {
+            Warehouse w = inv.getWarehouse();
             String wId = inv.getWarehouse().getId();
+
+            warehouseByBrandMap.putIfAbsent(wId, w.getBrandId());
+
             warehouseStockMap.computeIfAbsent(wId, k -> {
                 distanceMap.put(k, CalculateDistance.calculateDistance(
                         inv.getWarehouse().getLatitude(), inv.getWarehouse().getLongitude(), custLat, custLon));
@@ -296,7 +303,7 @@ public class InventoryTransactionService {
                 Set<ProductAssignment> assignments = remainingNeeds.entrySet().stream()
                         .map(req -> new ProductAssignment(req.getKey(), req.getValue()))
                         .collect(Collectors.toSet());
-                return List.of(new WarehouseBestResponse(wId, assignments));
+                return List.of(new WarehouseBestResponse(wId, warehouseByBrandMap.get(wId), assignments));
             }
         }
 
@@ -317,7 +324,7 @@ public class InventoryTransactionService {
             }
 
             if (!pickedInThisWarehouse.isEmpty()) {
-                response.add(new WarehouseBestResponse(wId, pickedInThisWarehouse));
+                response.add(new WarehouseBestResponse(wId, warehouseByBrandMap.get(wId), pickedInThisWarehouse));
             }
             if (remainingNeeds.isEmpty()) break;
         }

@@ -33,6 +33,10 @@ export const AddressService = {
         const res = await apiAxios.put(ENDPOINTS.SHIPMENT.SET_DEFAULT(id)) as ApiResponse<any>; 
         return res?.result;
     },
+    update: async (id:string, data : UserAddressRequest) => {
+        const res = await apiAxios.put(ENDPOINTS.SHIPMENT.UPDATE(id), data) as ApiResponse<any>; 
+        return res?.result;
+    },
     delete: async (id : string) => {
         const res = await apiAxios.delete(ENDPOINTS.SHIPMENT.DELETE(id)) as ApiResponse<any>; 
         return res?.result;

@@ -4,6 +4,7 @@ import com.ecommerce.order_service.dto.ApiResponse;
 import com.ecommerce.order_service.dto.request.NewStatusRequest;
 import com.ecommerce.order_service.dto.request.OrderCancelRequest;
 import com.ecommerce.order_service.dto.request.OrderCreationRequest;
+import com.ecommerce.order_service.dto.request.OrderReviewRequest;
 import com.ecommerce.order_service.dto.response.*;
 import com.ecommerce.order_service.enums.OrderStatus;
 import com.ecommerce.order_service.service.OrdersService;
@@ -11,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,21 +44,21 @@ public class OrdersController {
     }
 
     @PostMapping("/review")
-    ApiResponse<OrderReviewResponse> review(@RequestBody OrderCreationRequest request) {
-        return ApiResponse.<OrderReviewResponse>builder()
+    ApiResponse<List<OrderReviewResponse>> review(@RequestBody OrderReviewRequest request) {
+        return ApiResponse.<List<OrderReviewResponse>>builder()
                 .message("Xem trước đơn hàng thành công.")
                 .result(ordersService.review(request))
                 .build();
     }
 
     @GetMapping("/my-orders")
-    ApiResponse<PageResponse<OrderSummaryResponse>> getOrderByUserId(
+    ApiResponse<PageResponse<PurchaseResponse>> getOrderByUserId(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @RequestParam(value = "status", required = false) OrderStatus status,
             @RequestParam(value = "fromDate", required = false) String fromDate,
             @RequestParam(value = "toDate", required = false) String toDate) {
-        return ApiResponse.<PageResponse<OrderSummaryResponse>>builder()
+        return ApiResponse.<PageResponse<PurchaseResponse>>builder()
                 .message("Get order by user id success.")
                 .result(ordersService.getOrderByUserId(page, size, status, fromDate, toDate))
                 .build();

@@ -13,5 +13,7 @@ import java.math.BigDecimal;
 public class ItemBatchDetailResponse {
     String productVariantId;
     String productNameSnapshot;
+    String mediaUrl;
     BigDecimal unitPriceSnapshot;
+    String brandName;
 }

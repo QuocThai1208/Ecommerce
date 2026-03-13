@@ -3,6 +3,7 @@ package com.ecommerce.order_service.mapper;
 import com.ecommerce.order_service.dto.request.ItemRequest;
 import com.ecommerce.order_service.dto.request.OrderItemRequest;
 import com.ecommerce.order_service.dto.response.ItemResponse;
+import com.ecommerce.order_service.dto.response.PurchaseItemResponse;
 import com.ecommerce.order_service.entity.OrderItem;
 import org.mapstruct.Mapper;
 
@@ -14,4 +15,8 @@ public interface OrderItemMapper {
     OrderItem toOrderItem(ItemRequest request);
     Set<OrderItem> toOrderItemSet(Set<ItemRequest> itemRequests);
     List<ItemResponse> toItemResponseList(List<OrderItem> itemList);
+
+    PurchaseItemResponse toPurchaseItemResponse(OrderItem item);
+    List<PurchaseItemResponse> toPurchaseItemResponses(List<OrderItem> itemList);
+
 }

@@ -13,6 +13,7 @@ import java.time.Instant;
 public class WarehouseRequest {
     String name;
     String brandId;
+    String brandName;
     String wardCode;
     String districtCode;
     String provinceCode;

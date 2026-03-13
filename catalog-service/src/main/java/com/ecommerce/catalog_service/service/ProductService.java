@@ -306,7 +306,7 @@ public class ProductService {
                 .toList());
 
         response.setOptions(attributeValueMapper.toProductOptionResponseList(attribute));
-
+        response.setBrandName(product.getBrand().getId());
         response.setVariants(variantResponse);
 
         return response;

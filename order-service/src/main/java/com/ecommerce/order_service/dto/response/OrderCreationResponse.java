@@ -15,10 +15,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCreationResponse {
-    String id;
     OrderStatus status;
     BigDecimal finalAmount;
     String sessionUrl;
-    Instant createdAt;
-    Instant updateAt;
 }

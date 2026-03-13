@@ -20,6 +20,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { productService } from "@/src/service/productService"
+import { LoadingOverlay } from "@/components/ui/loading-overlay"
 
 
 interface value {
@@ -55,10 +56,20 @@ interface product {
     rating: number,
     reviews: number,
     sold: number,
-    shop: string,
+    brandName: string,
     images: string[],
     options: option[],
     variants: variant[]
+}
+
+interface ProductCheckouts{
+    variantId: string
+    quantity: number
+}
+
+interface ReviewItemRequest {
+    brandId: string,
+    productCheckouts: ProductCheckouts[]
 }
 
 export default function ProductDetail() {
@@ -69,6 +80,7 @@ export default function ProductDetail() {
     const [mainImage, setMainImage] = useState(0)
     const [wishlist, setWishlist] = useState(314)
     const [isWishlisted, setIsWishlisted] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [product, setProduct] = useState<product>({
         slug: '',
         name: '',
@@ -79,12 +91,14 @@ export default function ProductDetail() {
         rating: 0,
         reviews: 0,
         sold: 0,
-        shop: '',
+        brandName: '',
         images: [],
         options: [],
         variants: []
     });
+
     const router = useRouter();
+
 
     // Find current selected variant
     const selectedVariant = product?.variants.find(v =>
@@ -93,11 +107,27 @@ export default function ProductDetail() {
 
     const loadProductDisplay = async () => {
         try{
+            setLoading(true)
             const result = await productService.loadProductDetailDisplay(productId as string);
             setProduct(result);
         }catch(e){
             console.log("Error at loadProductDisplay: ", e)
+        }finally{
+            setLoading(false)
         }
+    }
+
+    const checkout = () => {
+        if(!selectedVariant) return
+        const reviewRequest: ReviewItemRequest[] = [{
+                brandId: product?.brandName,
+                productCheckouts: [
+                    { variantId: selectedVariant?.sku, quantity: quantity }
+                ]
+            }]
+
+        sessionStorage.setItem('checkout_data', JSON.stringify(reviewRequest))
+        router.push("/checkout")
     }
 
     const currentPrice = selectedVariant
@@ -120,6 +150,7 @@ export default function ProductDetail() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+        <LoadingOverlay isLoading={loading}/>
             {/* Breadcrumb */}
             <div className="bg-white border-b border-border">
                 <Button
@@ -356,6 +387,7 @@ export default function ProductDetail() {
                                     Thêm Vào Giỏ Hàng
                                 </button>
                                 <button
+                                onClick={checkout}
                                     disabled={!selectedVariant || currentStock <= 0}
                                     className="flex items-center justify-center gap-1 py-2.5 bg-primary text-white rounded hover:bg-primary/90 transition-colors font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >

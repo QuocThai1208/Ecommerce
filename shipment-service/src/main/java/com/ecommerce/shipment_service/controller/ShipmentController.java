@@ -21,7 +21,6 @@ public class ShipmentController {
     GhnShipmentService ghnShipmentService;
     ShipmentService shipmentService;
 
-
     @PostMapping("/calculator-fee")
     CalculatorFeeResponse calculatorFee(@RequestBody CalculatorFeeRequest request){
         return shipmentService.calculatorFee(request);

@@ -1,9 +1,6 @@
 package com.ecommerce.order_service.mapper;
 
-import com.ecommerce.order_service.dto.request.InventoryTransactionRequest;
-import com.ecommerce.order_service.dto.request.ItemRequest;
-import com.ecommerce.order_service.dto.request.OrderCreationRequest;
-import com.ecommerce.order_service.dto.request.OrderItemRequest;
+import com.ecommerce.order_service.dto.request.*;
 import com.ecommerce.order_service.dto.response.*;
 import com.ecommerce.order_service.entity.Orders;
 import org.mapstruct.Mapper;
@@ -33,5 +30,13 @@ public interface OrdersMapper {
     Set<OrderItemRequest> toOrderItemRequests(Set<ItemRequest> itemRequests);
 
     Set<ItemRequest> toItemRequestSet(Set<ItemBatchDetailResponse> itemBatchDetailResponses);
+
+    WarehouseBestRequest toWarehouseBestRequest(OrderReviewRequest request);
+
+    ProductCheckout toProductCheckout(ProductAssignment assignment);
+    Set<ProductCheckout> toProductCheckoutSet(Set<ProductAssignment> assignments);
+
+    PurchaseResponse toPurchaseResponse(Orders orders);
+    List<PurchaseResponse> toPurchaseResponses(List<Orders> orders);
 
 }

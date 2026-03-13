@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderItemRequest {
-    String productVariantId;
+    String variantId;
     long quantity;
     BigDecimal unitPriceSnapshot;
 }

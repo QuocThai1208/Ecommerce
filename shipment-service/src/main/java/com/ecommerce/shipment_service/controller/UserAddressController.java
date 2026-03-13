@@ -2,6 +2,7 @@ package com.ecommerce.shipment_service.controller;
 
 import com.ecommerce.shipment_service.dto.ApiResponse;
 import com.ecommerce.shipment_service.dto.request.UserAddressRequest;
+import com.ecommerce.shipment_service.dto.request.UserAddressUpdateRequest;
 import com.ecommerce.shipment_service.dto.response.UserAddressResponse;
 import com.ecommerce.shipment_service.service.UserAddressService;
 import lombok.AccessLevel;
@@ -38,6 +39,14 @@ public class UserAddressController {
     ApiResponse<String> setDefault(@PathVariable String addressId){
         return ApiResponse.<String>builder()
                 .result(userAddressService.setIsDefault(addressId))
+                .build();
+    }
+
+    @PutMapping("/{addressId}")
+    ApiResponse<UserAddressResponse> update(@PathVariable String addressId,@RequestBody  UserAddressUpdateRequest request){
+        return ApiResponse.<UserAddressResponse>builder()
+                .message("Cập nhật thành công.")
+                .result(userAddressService.update(request, addressId))
                 .build();
     }
 

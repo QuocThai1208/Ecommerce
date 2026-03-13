@@ -32,6 +32,7 @@ export const ENDPOINTS = {
     DISTRICTS: (id: string) => `/shipment/master-location/provinces/${id}`,
     WARDS: (id : string) => `/shipment/master-location/districts/${id}`,
     USER_ADDRESS: "/shipment/user-address",
+    UPDATE: (id : string) => `/shipment/user-address/${id}`,
     SET_DEFAULT: (id : string) => `/shipment/user-address/${id}/set-default`,
     DELETE: (id : string) => `/shipment/user-address/${id}`,
   },
@@ -53,6 +54,10 @@ export const ENDPOINTS = {
     ADD_WAREHOUSE: "/inventory/warehouses",
     WAREHOUSE_BY_BRAND_ID: "/inventory/warehouses",
     INFLOW: "/inventory/transactions/inflow"
-  } 
+  },
+  ORDER: {
+    REVIEW: "/orders/review",
+    MY_ORDERS: "/orders/my-orders"
+  }
 
 } as const; // Dùng 'as const' để Typescript gợi ý code chính xác hơn

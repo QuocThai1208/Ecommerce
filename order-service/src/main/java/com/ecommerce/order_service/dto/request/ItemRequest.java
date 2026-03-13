@@ -14,5 +14,6 @@ public class ItemRequest {
     String productVariantId;
     String productNameSnapshot;
     BigDecimal unitPriceSnapshot;
+    String mediaUrl;
     long quantity;
 }

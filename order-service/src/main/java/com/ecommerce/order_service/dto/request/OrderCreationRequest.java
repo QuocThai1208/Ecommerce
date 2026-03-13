@@ -4,6 +4,7 @@ import com.ecommerce.order_service.enums.MethodType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -12,12 +13,9 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCreationRequest {
-    ShippingAddressRequest shippingAddressRequest;
-    String couponCode;
-    String paymentMethod;
-    String carrierId;
-    String shopPickupPointId;
     String userAddressId;
+    String customerLatitude;
+    String customerLongitude;
     MethodType method;
-    Set<OrderItemRequest> orderItemRequest;
+    List<BrandOrderRequest> brandOrderRequest;
 }

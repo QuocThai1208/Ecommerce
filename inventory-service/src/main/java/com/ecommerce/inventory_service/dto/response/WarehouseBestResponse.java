@@ -13,5 +13,6 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WarehouseBestResponse {
     String warehouseId;
+    String brandId;
     Set<ProductAssignment> productAssignments;
 }

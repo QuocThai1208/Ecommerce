@@ -108,7 +108,7 @@ public class ShipmentService {
                             carrier
                     ).orElseThrow(() -> new AppException(ErrorCode.DISTRICT_NOT_FOUND));
 
-                    var ghnFeeRequest = shipmentMapper.toGhnFeeRequest(request);
+                    var ghnFeeRequest = shipmentMapper.toGhnFeeRequest(itemRequest);
                     ghnFeeRequest.setTo_ward_code(wardCode.getCarrierValue());
                     ghnFeeRequest.setTo_district_id(Integer.valueOf(districtId.getCarrierValue()));
                     ghnFeeRequest.setService_type_id(2);

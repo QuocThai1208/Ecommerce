@@ -1,11 +1,13 @@
 package com.ecommerce.payment_service.service;
 
 import com.ecommerce.event.dto.*;
+import com.ecommerce.payment_service.dto.request.TransactionDetailRequest;
 import com.ecommerce.payment_service.entity.Refund;
 import com.ecommerce.payment_service.enums.RefundStatus;
 import com.ecommerce.payment_service.enums.TransactionStatus;
 import com.ecommerce.payment_service.exception.AppException;
 import com.ecommerce.payment_service.exception.ErrorCode;
+import com.ecommerce.payment_service.mapper.DetailMapper;
 import com.ecommerce.payment_service.mapper.TransactionMapper;
 import com.ecommerce.payment_service.repository.DetailRepository;
 import com.ecommerce.payment_service.repository.RefundRepository;
@@ -16,6 +18,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -30,8 +33,11 @@ public class KafkaConsumerService {
     RefundRepository refundRepository;
 
     TransactionMapper transactionMapper;
+    DetailMapper detailMapper;
 
     KafkaTemplate<String, Object> kafkaTemplate;
+
+    DetailService detailService;
 
     @Transactional
     public void handleRefund(CancelEvent cancelEvent){
@@ -102,12 +108,18 @@ public class KafkaConsumerService {
 
     public void createTransactionCash(CashPaymentEvent cashPaymentEvent) {
         String transactionId = UUID.randomUUID().toString();
+        var now = Instant.now();
         var transaction = transactionMapper.cashPaymentEventToTransaction(cashPaymentEvent);
+        BigDecimal totalAmount = cashPaymentEvent.getCashPaymentItemEvents().stream()
+                .map(CashPaymentItemEvent::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         transaction.setId(transactionId);
+        transaction.setTotalAmount(totalAmount);
         transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setCreatedAt(Instant.now());
-        transaction.setUpdateAt(Instant.now());
+        transaction.setCreatedAt(now);
+        transaction.setUpdateAt(now);
         transactionRepository.save(transaction);
+        detailService.saveAll(transaction, detailMapper.toTransactionDetailRequests(cashPaymentEvent.getCashPaymentItemEvents()));
     }
 }

@@ -34,6 +34,7 @@ public enum ErrorCode {
     FILTER_SUFFICIENT_INVENTORIES_ERROR(1027, "Không có kho nào đủ số lượng.", HttpStatus.BAD_REQUEST),
     ACCESS_ERROR(1028, "Kết nối thất bại khi gọi service.", HttpStatus.GATEWAY_TIMEOUT),
     ORDER_BEING_PROCESSED(1029, "Đơn hàng đang được xử lý.", HttpStatus.BAD_REQUEST),
+    RESERVE_FAIL(1030, "Đặt hàng thất bại.", HttpStatus.BAD_REQUEST),
     INTERNAL_SERVER_ERROR(5000, "Lỗi hệ thống inventory service.", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 

@@ -15,6 +15,7 @@ public class ProductDisplayDetailResponse {
     String name;
     String description;
     long basePrice;
+    String brandName;
     List<String> images;
     List<ProductOptionResponse> options;
     List<VariantDisplayResponse> variants;

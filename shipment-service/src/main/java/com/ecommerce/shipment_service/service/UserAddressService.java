@@ -1,6 +1,7 @@
 package com.ecommerce.shipment_service.service;
 
 import com.ecommerce.shipment_service.dto.request.UserAddressRequest;
+import com.ecommerce.shipment_service.dto.request.UserAddressUpdateRequest;
 import com.ecommerce.shipment_service.dto.response.UserAddressResponse;
 import com.ecommerce.shipment_service.exception.AppException;
 import com.ecommerce.shipment_service.exception.ErrorCode;
@@ -78,6 +79,32 @@ public class UserAddressService {
                     response.setProvinceCode(province.getCodename());
                     return response;
                 }).toList();
+    }
+
+    public UserAddressResponse update(UserAddressUpdateRequest request, String userAddressId){
+        var now = Instant.now();
+        var userAddress = addressRepository.findById(userAddressId)
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+        addressMapper.update(userAddress, request);
+
+        if(!userAddress.getWardCode().getCodename().equals(request.getWardCode())){
+            var ward = masterLocationRepository.findById(request.getWardCode())
+                    .orElseThrow(() -> new AppException(ErrorCode.WARD_CODE_NOT_FOUND));
+            userAddress.setWardCode(ward);
+        }
+
+        var response = addressMapper.toUserAddressResponse(addressRepository.save(userAddress));
+
+        var district = userAddress.getWardCode().getParentCode();
+        var province = district.getParentCode();
+
+        userAddress.setUpdateAt(now);
+
+        response.setWardCode(userAddress.getWardCode().getCodename());
+        response.setDistrictCode(district.getCodename());
+        response.setProvinceCode(province.getCodename());
+
+        return response;
     }
 
     @Transactional

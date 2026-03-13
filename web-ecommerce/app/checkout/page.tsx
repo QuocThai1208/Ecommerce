@@ -4,92 +4,98 @@ import { useEffect, useState } from "react"
 import { MapPin, AlertCircle, Gift, X } from "lucide-react"
 import apiAxios from "@/src/api/apiAxios"
 import { ENDPOINTS } from "@/src/api/endpoints"
+import { OrderService } from "@/src/service/orderService"
+import { LoadingOverlay } from "@/components/ui/loading-overlay"
+import Footer from "@/components/footer"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { AddressForm } from "@/components/ui/address-form"
+import { useAddress } from "@/src/hooks/useAddress"
+import { UserAddressRequest, UserAddressResponse } from "@/types/address"
 
-
-interface Address {
-    id: string,
-    userId: string,
-    fullName: string,
-    phone: string,
-    addressDetail: string,
-    isDefault?: boolean,
+interface ApiResponse<T> {
+    result: T;
+    code: number;
+    message: string;
 }
+
+interface ProductCheckouts {
+    variantId: string
+    quantity: number
+}
+
+interface ReviewItemRequest {
+    brandId: string,
+    productCheckouts: ProductCheckouts[]
+}
+
+interface ReviewRequest {
+    couponCode: string,
+    userAddressId: string,
+    customerLatitude: number,
+    customerLongitude: number,
+    method: string,
+    reviewItemRequest: ReviewItemRequest[]
+}
+
+interface ProductResponse {
+    variantId: string,
+    productName: string,
+    variantName: string,
+    price: number,
+    quantity: number,
+    total: number,
+    image: string
+}
+
+interface ReviewResponse {
+    brandId: string,
+    brandName: string,
+    badge: string,
+    feeShip: number,
+    products: ProductResponse[]
+}
+
+
 export default function CheckoutPage() {
     const [note, setNote] = useState("")
-    const [paymentMethod, setPaymentMethod] = useState("shopeepay")
-    const [address, setAddress] = useState<Address>()
-    const [addresses, setAddresses] = useState<Address[]>([])
+    const [paymentMethod, setPaymentMethod] = useState("CARD")
+    const [address, setAddress] = useState<UserAddressResponse>()
     const [showAddressModal, setShowAddressModal] = useState(false)
     const [selectedAddressId, setSelectedAddressId] = useState<string>("")
+    const [reviewRequest, setReviewRequest] = useState<ReviewItemRequest[] | null>(null)
+    const [dataRequest, setDataRequest] = useState<ReviewRequest | null>(null);
+    const [dataResponse, setDataResponse] = useState<ReviewResponse[] | null>(null);
+    const [loading, setLoading] = useState(false)
+    const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const {
+        addresses, setAddresses,
+        handleAdd, handleUpdate, handleSetDefault
+    } = useAddress();
 
-    // const address = {
-    //     country: "Quốc Thái (+84) 328 481 957",
-    //     address: "Số 11, Đường Số 50 Phạm Văn Chiêu, Phường 14, Quận Gò Vấp, TP HCM",
-    //     full: "Quốc Thái",
-    //     phone: "+84) 328 481 957",
-    // }
-
-    const shops = [
-        {
-            id: 1,
-            name: "VAZCO Shop",
-            badge: "Yêu thích",
-            chatAvailable: true,
-            products: [
-                {
-                    id: "1",
-                    name: "QUẦN NGỤ VAZCO –CỰC KỲ LINH HOẠT, MÃ Q27 MỀ THÁI...",
-                    variant: "Phân loại: Combo 5 Cái,3XL",
-                    price: 166000,
-                    quantity: 2,
-                    total: 398000,
-                    image: "/black-shorts.jpg",
-                },
-            ],
-            insurance: {
-                available: true,
-                price: 1194,
-                quantity: 2,
-                total: 2388,
-            },
-        },
-        {
-            id: 2,
-            name: "VOVOVA-MALL",
-            badge: "Mall",
-            chatAvailable: true,
-            products: [
-                {
-                    id: "2",
-                    name: "Thùng rác lưới thép màu đen,công nghệ hương kim loại,giá dùng gấp...",
-                    variant: "Tăng túi rác *50",
-                    price: 56307,
-                    quantity: 1,
-                    total: 56307,
-                    image: "/trash-bin.jpg",
-                },
-            ],
-            insurance: null,
-        },
-    ]
-
-    const totalProducts = shops.reduce((sum, shop) => {
-        const productsCount = shop.products.reduce((s, p) => s + p.quantity, 0)
-        const insuranceCount = shop.insurance ? shop.insurance.quantity : 0
-        return sum + productsCount + insuranceCount
-    }, 0)
-
-    const subtotal = shops.reduce((sum, shop) => {
-        const productsTotal = shop.products.reduce((s, p) => s + p.total, 0)
-        const insuranceTotal = shop.insurance ? shop.insurance.total : 0
-        return sum + productsTotal + insuranceTotal
-    }, 0)
+    const loadDataReviewResponse = async () => {
+        try {
+            setLoading(true)
+            if (!dataRequest) return
+            const result = await OrderService.review(dataRequest);
+            setDataResponse(result);
+        } catch (e) {
+            console.log("error at loadDataReviewResponse: ", e)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const loadAddress = async () => {
         try {
-            const res = await apiAxios.get(ENDPOINTS.USER_ADDRESS.ADDRESS_DEFAULT);
-            setAddress(res.data?.result)
-            setSelectedAddressId(res.data?.result?.id || "")
+            const res = await apiAxios.get(ENDPOINTS.USER_ADDRESS.ADDRESS_DEFAULT) as ApiResponse<any>;
+            setAddress(res?.result)
+            setSelectedAddressId(res?.result?.id || "")
         } catch (e) {
             console.log("Error at loadAddress: ", e)
         }
@@ -97,18 +103,44 @@ export default function CheckoutPage() {
 
     const loadAllAddresses = async () => {
         try {
-            const res = await apiAxios.get(ENDPOINTS.USER_ADDRESS.MY_ADDRESS || "/api/addresses");
-            setAddresses(res.data?.result || [])
+            const res = await apiAxios.get(ENDPOINTS.USER_ADDRESS.MY_ADDRESS) as ApiResponse<any>;
+            setAddresses(res?.result || [])
         } catch (e) {
             console.log("Error at loadAllAddresses: ", e)
         }
     }
 
-    const handleSelectAddress = (selectedAddress: Address) => {
+    const handleSelectAddress = async (selectedAddress: UserAddressResponse) => {
+        await handleSetDefault(selectedAddress.id)
         setAddress(selectedAddress)
         setSelectedAddressId(selectedAddress.id)
-        setShowAddressModal(false)
     }
+
+    //----------------useEffect---------------------
+    useEffect(() => {
+        const data = sessionStorage.getItem('checkout_data');
+        if (data) {
+            setReviewRequest(JSON.parse(data));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (address && reviewRequest) {
+            const newDataRequest: ReviewRequest = {
+                couponCode: '',
+                userAddressId: address.id,
+                customerLatitude: address.latitude,
+                customerLongitude: address.longitude,
+                method: paymentMethod,
+                reviewItemRequest: reviewRequest
+            }
+            setDataRequest(newDataRequest)
+        }
+    }, [address, reviewRequest, paymentMethod])
+
+    useEffect(() => {
+        if (dataRequest) loadDataReviewResponse()
+    }, [dataRequest]);
 
     useEffect(() => {
         loadAddress();
@@ -116,6 +148,45 @@ export default function CheckoutPage() {
             loadAllAddresses();
         }
     }, [showAddressModal])
+
+    if (!dataResponse) return <LoadingOverlay isLoading={loading} />
+
+    const totalProducts = dataResponse.reduce((sum, shop) => {
+        const productsCount = shop.products.reduce((s, p) => s + p.quantity, 0)
+        return sum + productsCount
+    }, 0)
+
+    const subtotal = dataResponse.reduce((sum, shop) => {
+        const productsTotal = shop.products.reduce((s, p) => s + p.total, 0)
+        return sum + productsTotal
+    }, 0)
+
+    const totalFeeShip = dataResponse.reduce((sum, shop) => {
+        const feeTotal = shop.feeShip
+        return sum + feeTotal
+    }, 0)
+
+    const totalDiscount = 10000;
+
+    const editingAddress = editingId
+        ? addresses.find((a) => a.id === editingId)
+        : null;
+
+    const handleSubmit = async (data: UserAddressRequest) => {
+        setLoading(true);
+        try {
+            if (editingId) {
+                await handleUpdate(editingId, data);
+                setEditingId(null);
+            } else {
+                await handleAdd(data);
+            }
+            setShowForm(false);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -131,7 +202,7 @@ export default function CheckoutPage() {
                             <p className="text-sm text-foreground font-medium mb-1">{address?.fullName} ({address?.phone})</p>
                             <p className="text-sm text-muted-foreground">{address?.addressDetail}</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => setShowAddressModal(true)}
                             className="px-4 py-2 text-primary text-sm font-medium hover:bg-gray-50 rounded"
                         >
@@ -152,31 +223,31 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Shops and Products */}
-                {shops.map((shop) => (
-                    <div key={shop.id} className="bg-white border border-t-0 border-gray-200">
+                {dataResponse.map((brand) => (
+                    <div key={brand.brandId} className="bg-white border border-t-0 border-gray-200">
                         {/* Shop Header */}
                         <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
-                            <span className="font-medium text-foreground">{shop.name}</span>
-                            {shop.badge && (
+                            <span className="font-medium text-foreground">{brand.brandName}</span>
+                            {brand.badge && (
                                 <span className="px-2 py-1 bg-primary text-primary-foreground text-xs font-medium rounded">
-                                    {shop.badge}
+                                    {brand.badge}
                                 </span>
                             )}
-                            {shop.chatAvailable && <span className="text-xs text-primary ml-auto cursor-pointer">💬 Chat ngay</span>}
+                            <span className="text-xs text-primary ml-auto cursor-pointer">💬 Chat ngay</span>
                         </div>
 
                         {/* Products */}
-                        {shop.products.map((product) => (
-                            <div key={product.id} className="grid grid-cols-12 gap-4 px-4 py-4 items-center border-b border-gray-100">
+                        {brand.products.map((product) => (
+                            <div key={product.variantId} className="grid grid-cols-12 gap-4 px-4 py-4 items-center border-b border-gray-100">
                                 <div className="col-span-6 flex gap-3">
                                     <img
                                         src={product.image || "/placeholder.svg"}
-                                        alt={product.name}
+                                        alt={product.productName}
                                         className="w-16 h-16 object-cover rounded"
                                     />
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-foreground line-clamp-2">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground mt-1">{product.variant}</p>
+                                        <p className="text-sm font-medium text-foreground line-clamp-2">{product.productName}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">{product.variantName}</p>
                                     </div>
                                 </div>
                                 <div className="col-span-2 text-sm text-foreground">{product.price.toLocaleString()}đ</div>
@@ -187,22 +258,6 @@ export default function CheckoutPage() {
                             </div>
                         ))}
 
-                        {/* Insurance Option */}
-                        {shop.insurance && (
-                            <div className="px-4 py-3 bg-orange-50 border-b border-gray-100">
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-foreground">Bảo hiểm Thời trang</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Bảo vệ sản phẩm được giao ổn định 100%. Tìm hiểu thêm
-                                        </p>
-                                    </div>
-                                    <div className="text-sm font-medium text-primary whitespace-nowrap">
-                                        {shop.insurance.total.toLocaleString()}đ
-                                    </div>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Voucher Section */}
                         <div className="px-4 py-3 flex items-center justify-between bg-gray-50 border-b border-gray-100">
@@ -226,11 +281,9 @@ export default function CheckoutPage() {
                                 />
                             </div>
 
-                            <div className="mb-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-600">Phương thức vận chuyển:</span>
-                                </div>
-                                <p className="text-xs text-gray-600">Nhận vào 7 Thg1 - 8 Thg1</p>
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-sm text-gray-600">Đơn vị vận chuyển:</span>
+                                <span className="text-sm font-medium text-gray">Giao Hàng Nhanh</span>
                             </div>
 
                             <div className="flex items-center gap-2 text-xs text-gray-600 mb-3">
@@ -240,19 +293,19 @@ export default function CheckoutPage() {
 
                             <div className="flex justify-between items-center">
                                 <span className="text-sm text-gray-600">Được động kiếm</span>
-                                <span className="text-sm font-medium text-primary">18.500đ</span>
+                                <span className="text-sm font-medium text-primary">{brand.feeShip.toLocaleString()}đ</span>
                             </div>
                         </div>
 
                         <div className="px-4 py-3 flex justify-between items-center text-right">
                             <span className="text-sm text-gray-600 flex-1">
                                 Tổng cộng (
-                                {shop.products.reduce((sum, p) => sum + p.quantity, 0) + (shop.insurance ? shop.insurance.quantity : 0)}{" "}
+                                {brand.products.reduce((sum, p) => sum + p.quantity, 0)}{" "}
                                 sản phẩm):
                             </span>
                             <span className="text-lg font-bold text-primary whitespace-nowrap ml-4">
                                 {(
-                                    shop.products.reduce((sum, p) => sum + p.total, 0) + (shop.insurance ? shop.insurance.total : 0)
+                                    brand.products.reduce((sum, p) => sum + p.total, 0) + brand.feeShip
                                 ).toLocaleString()}
                                 đ
                             </span>
@@ -267,44 +320,35 @@ export default function CheckoutPage() {
                     {/* Payment Method Tabs */}
                     <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
                         <button
-                            onClick={() => setPaymentMethod("shopeepay")}
-                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "shopeepay"
+                            onClick={() => setPaymentMethod("CARD")}
+                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "CARD"
                                 ? "border-2 border-primary text-primary bg-orange-50"
                                 : "border border-gray-300 text-gray-600 hover:border-gray-400"
                                 }`}
                         >
-                            Vi ShopeePay
+                            Thẻ Tín dụng
                         </button>
                         <button
-                            onClick={() => setPaymentMethod("credit")}
-                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "credit"
+                            onClick={() => setPaymentMethod("WALLET")}
+                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "WALLET"
                                 ? "border-2 border-primary text-primary bg-orange-50"
                                 : "border border-gray-300 text-gray-600 hover:border-gray-400"
                                 }`}
                         >
-                            Thẻ Tín dụng/Ghi nợ
+                            Ví điện tử
                         </button>
                         <button
-                            onClick={() => setPaymentMethod("google")}
-                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "google"
+                            onClick={() => setPaymentMethod("BANK_TRANSFER")}
+                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "BANK_TRANSFER"
                                 ? "border-2 border-primary text-primary bg-orange-50"
                                 : "border border-gray-300 text-gray-600 hover:border-gray-400"
                                 }`}
                         >
-                            Google Pay
+                            Ngân hàng liên kết
                         </button>
                         <button
-                            onClick={() => setPaymentMethod("napas")}
-                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "napas"
-                                ? "border-2 border-primary text-primary bg-orange-50"
-                                : "border border-gray-300 text-gray-600 hover:border-gray-400"
-                                }`}
-                        >
-                            Thẻ nội địa NAPAS
-                        </button>
-                        <button
-                            onClick={() => setPaymentMethod("cod")}
-                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "cod"
+                            onClick={() => setPaymentMethod("CASH")}
+                            className={`px-4 py-2 text-sm font-medium rounded whitespace-nowrap transition-all ${paymentMethod === "CASH"
                                 ? "border-2 border-primary text-primary bg-orange-50"
                                 : "border border-gray-300 text-gray-600 hover:border-gray-400"
                                 }`}
@@ -315,44 +359,16 @@ export default function CheckoutPage() {
 
                     {/* Payment Options */}
                     <div className="space-y-3 border-t border-gray-100 pt-4">
-                        {paymentMethod === "shopeepay" && (
-                            <>
-                                <label className="flex items-center gap-3 p-3 border border-gray-200 rounded cursor-pointer hover:bg-gray-50">
-                                    <input type="radio" name="shopeepay-option" value="balance" defaultChecked className="w-4 h-4" />
-                                    <div className="flex-1 flex items-center gap-2">
-                                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-sm">
-                                            e
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">Số dư Ví ShopeePay</p>
-                                            <p className="text-xs text-muted-foreground">0đ</p>
-                                        </div>
-                                    </div>
-                                </label>
-                                <label className="flex items-center gap-3 p-3 border border-gray-200 rounded cursor-pointer hover:bg-gray-50">
-                                    <input type="radio" name="shopeepay-option" value="mb" className="w-4 h-4" />
-                                    <div className="flex-1 flex items-center gap-2">
-                                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                            <span className="text-xs font-bold text-red-600">MB</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">MB</p>
-                                            <p className="text-xs text-muted-foreground">x5757</p>
-                                        </div>
-                                    </div>
-                                </label>
-                            </>
-                        )}
-                        {paymentMethod === "credit" && (
+                        {paymentMethod === "CARD" && (
                             <p className="text-sm text-gray-600 text-center py-6">Chọn thẻ tín dụng/ghi nợ của bạn</p>
                         )}
-                        {paymentMethod === "google" && (
+                        {paymentMethod === "WALLET" && (
                             <p className="text-sm text-gray-600 text-center py-6">Google Pay sẽ được sử dụng</p>
                         )}
-                        {paymentMethod === "napas" && (
+                        {paymentMethod === "BANK_TRANSFER" && (
                             <p className="text-sm text-gray-600 text-center py-6">Thẻ nội địa NAPAS sẽ được sử dụng</p>
                         )}
-                        {paymentMethod === "cod" && (
+                        {paymentMethod === "CASH" && (
                             <p className="text-sm text-gray-600 text-center py-6">Thanh toán tiền mặt khi nhận hàng</p>
                         )}
                     </div>
@@ -367,15 +383,15 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Tổng tiền phí vận chuyển</span>
-                            <span className="text-foreground font-medium">38.400đ</span>
+                            <span className="text-foreground font-medium">{totalFeeShip.toLocaleString()}đ</span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Tổng cộng Voucher giảm giá</span>
-                            <span className="text-primary font-medium">-1.000đ</span>
+                            <span className="text-primary font-medium">-{totalDiscount.toLocaleString()}đ</span>
                         </div>
                         <div className="border-t border-gray-200 pt-3 flex justify-between">
                             <span className="text-foreground font-semibold">Tổng thanh toán</span>
-                            <span className="text-2xl font-bold text-primary">{(subtotal + 38400 - 1000).toLocaleString()}đ</span>
+                            <span className="text-2xl font-bold text-primary">{(subtotal + totalFeeShip - totalDiscount).toLocaleString()}đ</span>
                         </div>
                     </div>
 
@@ -392,70 +408,141 @@ export default function CheckoutPage() {
 
             {/* Address Selection Modal */}
             {showAddressModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+                    {/* Modal Container */}
+                    <div
+                        className="bg-white rounded-xl w-full max-w-2xl shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         {/* Modal Header */}
-                        <div className="sticky top-0 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-                            <h2 className="text-base font-semibold text-foreground">Địa Chỉ Của Tôi</h2>
+                        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                            <div>
+                                <h2 className="text-xl font-bold text-gray-800">Địa chỉ của tôi</h2>
+                                <p className="text-sm text-gray-500">Chọn địa chỉ nhận hàng phù hợp</p>
+                            </div>
                             <button
                                 onClick={() => setShowAddressModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
 
                         {/* Address List */}
-                        <div className="p-4 space-y-3">
-                            {addresses.map((addr) => (
-                                <div
-                                    key={addr.id}
-                                    onClick={() => handleSelectAddress(addr)}
-                                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                                        selectedAddressId === addr.id
-                                            ? "border-primary bg-orange-50"
-                                            : "border-gray-200 hover:border-primary/30"
-                                    }`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <input
-                                            type="radio"
-                                            checked={selectedAddressId === addr.id}
-                                            onChange={() => {}}
-                                            className="w-5 h-5 mt-0.5 cursor-pointer"
-                                        />
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="font-medium text-foreground">{addr.fullName}</span>
-                                                <span className="text-muted-foreground text-sm">({addr.phone})</span>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-2">{addr.addressDetail}</p>
-                                            <div className="flex items-center gap-2 mb-2">
-                                                {addr.isDefault && (
-                                                    <span className="inline-block border border-red-500 text-red-500 text-xs px-2 py-1 rounded">
-                                                        Mặc định
-                                                    </span>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-4 custom-scrollbar">
+                            {addresses.length > 0 ? (
+                                addresses.map((addr) => (
+                                    <div
+                                        key={addr.id}
+                                        className={`group relative p-4 rounded-xl border-2 transition-all duration-200  ${selectedAddressId === addr.id
+                                            ? "border-orange-500 bg-orange-50/50 shadow-sm"
+                                            : "border-gray-100 hover:border-orange-200 hover:bg-gray-50"
+                                            }`}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div 
+                                            onClick={() => handleSelectAddress(addr)}
+                                            className={`mt-1 w-5 h-5 rounded-full border-2 cursor-pointer flex items-center justify-center transition-colors ${selectedAddressId === addr.id ? "border-orange-500" : "border-gray-300"
+                                                }`}>
+                                                {selectedAddressId === addr.id && (
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-in zoom-in duration-150" />
                                                 )}
                                             </div>
+
+                                            <div className="flex-1">
+                                                <div className="flex justify-between">
+                                                    <div className="flex items-center gap-3 mb-1">
+                                                        <span className="font-semibold text-gray-800 text-sm">{addr.fullName}</span>
+                                                        <div className="h-3 w-[1px] bg-gray-300" />
+                                                        <span className="text-gray-500 text-sm">{addr.phone}</span>
+                                                        {addr.isDefault && (
+                                                            <div
+                                                                className="bg-orange-100 text-orange-600 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">
+                                                                Mặc định
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingId(addr.id);
+                                                            setShowForm(true);
+                                                        }}
+                                                        className="text-blue-600 text-[12px] font-semibold transition-opacity hover:underline items-end">
+                                                        Cập nhật
+                                                    </button>
+                                                </div>
+
+                                                <p className="text-[12px] text-gray-600 leading-relaxed mb-3">
+                                                    {addr.addressDetail}
+                                                </p>
+
+
+                                            </div>
                                         </div>
-                                        <button className="text-primary text-sm font-medium hover:underline whitespace-nowrap ml-2">
-                                            Cập nhật
-                                        </button>
                                     </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-10">
+                                    <p className="text-gray-400">Bạn chưa có địa chỉ nào.</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
 
-                        {/* Add New Address Button */}
-                        <div className="sticky bottom-0 p-4 border-t border-gray-200 bg-white">
-                            <button className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition">
-                                <span>+</span>
+                        {/* Modal Footer */}
+                        <div className="p-2 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+                            <button
+                                onClick={() => {
+                                    setEditingId(null);
+                                    setShowForm(true);
+                                }}
+                                className="group w-full hover:bg-orange-600 bg-orange-500 border-2 text-white font-bold py-1 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-sm active:scale-[0.98]">
+                                <span className="text-xl group-hover:rotate-90 transition-transform">+</span>
                                 <span>Thêm Địa Chỉ Mới</span>
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            <Dialog open={showForm} onOpenChange={(open) => {
+                if (!open) {
+                    setShowForm(false);
+                    setEditingId(null);
+                }
+            }}>
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl pl-4 pt-4">
+                            {editingId ? 'Sửa địa chỉ' : 'Thêm địa chỉ mới'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto p-6 pt-2 scrollbar-thin shadow-inner">
+                        <AddressForm
+                            onSubmit={handleSubmit}
+                            onCancel={() => {
+                                setShowForm(false);
+                                setEditingId(null);
+                            }}
+                            initialData={
+                                editingAddress
+                                    ? {
+                                        fullName: editingAddress.fullName,
+                                        phone: editingAddress.phone,
+                                        addressDetail: editingAddress.addressDetail,
+                                        wardCode: editingAddress.wardCode,
+                                        districtCode: editingAddress.districtCode,
+                                        provinceCode: editingAddress.provinceCode,
+                                        latitude: editingAddress.latitude,
+                                        longitude: editingAddress.longitude
+                                    }
+                                    : undefined
+                            }
+                            loading={loading}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
+            <Footer />
         </div>
     )
 }

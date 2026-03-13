@@ -93,27 +93,32 @@ export const useAddress = () => {
 
   const handleUpdate = async (id: string, data: UserAddressRequest) => {
     try {
-      const response = await fetch(`/api/addresses/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      const result = await AddressService.update(id, data);
+      setAddresses(
+        addresses.map((addr) =>
+          addr.id === id
+            ? {
+              ...addr,
+              fullName: result.fullName,
+              phone: result.phone,
+              wardCode: result.wardCode,
+              addressDetail: result.addressDetail,
+              latitude: result.latitude,
+              longitude: result.longitude
+            }
+            : addr
+        )
+      );
+      setFormData({
+        fullName: '',
+        phone: '',
+        wardCode: '',
+        districtCode: '',
+        provinceCode: '',
+        addressDetail: '',
+        latitude: 0,
+        longitude: 0
       });
-
-      if (response.ok) {
-        setAddresses(
-          addresses.map((addr) =>
-            addr.id === id
-              ? {
-                ...addr,
-                fullName: data.fullName,
-                phone: data.phone,
-                addressDetail: data.addressDetail,
-                wardCode: data.wardCode,
-              }
-              : addr
-          )
-        );
-      }
     } catch (error) {
       console.error('Failed to update address:', error);
       // Demo: update locally
@@ -137,8 +142,8 @@ export const useAddress = () => {
     try {
       const result = await AddressService.delete(id);
 
-        setAddresses(addresses.filter((addr) => addr.id !== id));
-        toast.success(result)
+      setAddresses(addresses.filter((addr) => addr.id !== id));
+      toast.success(result)
     } catch (error) {
       console.error('Failed to delete address:', error);
     }
@@ -148,21 +153,21 @@ export const useAddress = () => {
     try {
       const result = await AddressService.set_default(id);
 
-        setAddresses(
-          addresses.map((addr) => ({
-            ...addr,
-            isDefault: addr.id === id,
-          }))
-        );
-        toast.success(result);
+      setAddresses(
+        addresses.map((addr) => ({
+          ...addr,
+          isDefault: addr.id === id,
+        }))
+      );
+      toast.success(result);
     } catch (error) {
       console.error('Failed to set default address:', error);
-      
+
     }
   };
 
   return {
-    provinces, districts, wards, addresses, loading, formData,
+    provinces, districts, wards, addresses, loading, formData, setAddresses,
     refreshProvince, refreshDistrict, refreshWard, getMyAddress, setFormData,
     handleAdd, handleUpdate, handleDelete, handleSetDefault
   }

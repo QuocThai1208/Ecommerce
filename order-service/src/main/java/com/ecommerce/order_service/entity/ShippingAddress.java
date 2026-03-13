@@ -15,6 +15,10 @@ public class ShippingAddress {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    Orders orders;
+
     String userId;
     String recipientName; // Tên người nhận
     String phone; // Số điện thoại

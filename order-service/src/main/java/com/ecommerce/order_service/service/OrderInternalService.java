@@ -14,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -27,25 +29,22 @@ public class OrderInternalService {
     ShippingAddressService shippingAddressService;
 
     @Transactional
-    public Orders saveOrder(
-            Orders order,
-            ShippingAddressRequest addressRequest,
-            Set<ItemRequest> itemRequests
+    public List<Orders> saveMultipleOrder(
+            List<Orders> orders,
+            Map<String, Set<ItemRequest>> itemRequestsMap
     ) {
-        var shippingAddress = shippingAddressService.create(addressRequest);
 
-        order.setShippingAddress(shippingAddress);
-        order = ordersRepository.save(order);
-
-        // tạo payment
-        paymentService.createIntentPayment(order, PaymentRequest.builder()
-                .amount(order.getFinalAmount())
-                .transactionType(TransactionType.PAYMENT)
-                .status(PaymentStatus.PENDING)
-                .build());
-
-        orderItemService.createOrderItems(order, itemRequests);
-
-        return order;
+        var ordersSave = ordersRepository.saveAll(orders);
+        ordersSave.forEach(order -> {
+            // tạo payment
+            paymentService.createIntentPayment(order, PaymentRequest.builder()
+                    .amount(order.getFinalAmount())
+                    .transactionType(TransactionType.PAYMENT)
+                    .status(PaymentStatus.PENDING)
+                    .paymentGateway("STRIPE")
+                    .build());
+            orderItemService.createOrderItems(order, itemRequestsMap.get(order.getId()));
+        });
+        return ordersSave;
     }
 }

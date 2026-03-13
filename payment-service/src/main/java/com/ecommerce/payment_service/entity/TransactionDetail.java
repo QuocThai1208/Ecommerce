@@ -28,6 +28,7 @@ public class TransactionDetail {
 
     @Column(nullable = false)
     String orderId;
+    String brandId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,6 +36,5 @@ public class TransactionDetail {
 
     @Column(nullable = false)
     BigDecimal amount;
-    String brandId;
     Instant createdAt;
 }

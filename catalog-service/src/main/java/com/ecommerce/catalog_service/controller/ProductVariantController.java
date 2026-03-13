@@ -5,7 +5,7 @@ import com.ecommerce.catalog_service.dto.request.ItemBatchDetailRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantUpdateRequest;
 import com.ecommerce.catalog_service.dto.response.ItemBatchDetailResponse;
-import com.ecommerce.catalog_service.dto.response.ProductResponse;
+import com.ecommerce.catalog_service.dto.response.ProductCheckoutResponse;
 import com.ecommerce.catalog_service.dto.response.ProductVariantResponse;
 import com.ecommerce.catalog_service.enums.ProductStatus;
 import com.ecommerce.catalog_service.service.ProductVariantService;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +33,16 @@ public class ProductVariantController {
                 .result(productVariantService.getBatchDetails(request))
                 .build();
     }
+
+    @PostMapping("/checkout")
+    ApiResponse<List<ProductCheckoutResponse>> getCheckout(@RequestBody Set<String> variantIds){
+        return ApiResponse.<List<ProductCheckoutResponse>>builder()
+                .message("Lấy giá và tên lô hàng thành công.")
+                .result(productVariantService.getCheckout(variantIds))
+                .build();
+    }
+
+
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     ApiResponse<List<ProductVariantResponse>> create(

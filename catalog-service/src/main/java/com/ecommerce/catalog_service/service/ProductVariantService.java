@@ -3,9 +3,7 @@ package com.ecommerce.catalog_service.service;
 import com.ecommerce.catalog_service.dto.request.ItemBatchDetailRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantRequest;
 import com.ecommerce.catalog_service.dto.request.ProductVariantUpdateRequest;
-import com.ecommerce.catalog_service.dto.response.ItemBatchDetailResponse;
-import com.ecommerce.catalog_service.dto.response.MultipleFileResponse;
-import com.ecommerce.catalog_service.dto.response.ProductVariantResponse;
+import com.ecommerce.catalog_service.dto.response.*;
 import com.ecommerce.catalog_service.entity.AttributeValue;
 import com.ecommerce.catalog_service.entity.Product;
 import com.ecommerce.catalog_service.entity.ProductMedia;
@@ -177,13 +175,16 @@ public class ProductVariantService {
         return productVariantMapper.toProductVariantResponse(productVariantRepository.save(productVariant));
     }
 
+    @Transactional
     public List<ItemBatchDetailResponse> getBatchDetails(ItemBatchDetailRequest request) {
         var productVariants = productVariantRepository.findAllById(request.getProductVariantIds());
         return productVariants.stream().map(
                 pv -> ItemBatchDetailResponse.builder()
                         .productVariantId(pv.getSku())
                         .productNameSnapshot(pv.getProduct().getName())
+                        .mediaUrl(pv.getProductMedia().getMediaUrl())
                         .unitPriceSnapshot(BigDecimal.valueOf(pv.getPriceAdjustment()))
+                        .brandName(pv.getProduct().getBrand().getName())
                         .build()
         ).toList();
     }
@@ -239,5 +240,31 @@ public class ProductVariantService {
             product.setStatus(ProductStatus.ACTIVE);
             productRepository.save(product);
         }
+    }
+
+    public List<ProductCheckoutResponse> getCheckout(Set<String> variantIds){
+        var productVariants = productVariantRepository.findAllBySkuInWithDetails(variantIds);
+        return productVariants.stream()
+                .collect(Collectors.groupingBy(v -> v.getProduct().getBrand()))
+                .entrySet().stream()
+                .map(entry -> {
+                    var brand = entry.getKey();
+                    var variantIsBrand = entry.getValue();
+
+                    List<ProductItemCheckoutResponse> items = variantIsBrand.stream()
+                            .map(v -> ProductItemCheckoutResponse.builder()
+                                    .variantId(v.getSku())
+                                    .productName(v.getProduct().getName())
+                                    .variantName(v.getName())
+                                    .unitPriceSnapshot(v.getPriceAdjustment())
+                                    .image(v.getProductMedia() != null ? v.getProductMedia().getMediaUrl() : null)
+                                    .build())
+                            .toList();
+                    return ProductCheckoutResponse.builder()
+                            .brandId(brand.getId())
+                            .brandName(brand.getName())
+                            .itemCheckoutResponses(items)
+                            .build();
+                }).toList();
     }
 }

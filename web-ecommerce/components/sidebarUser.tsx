@@ -65,7 +65,7 @@ export const SidebarUser = () => {
   const pathname = usePathname()
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-4 space-y-4 h-fit">
       <div className="lg:col-span-1 w-full max-w-[250px]">
         {/* User Header */}
         <div className="flex items-center gap-3 py-4 mb-2 border-b border-slate-100">

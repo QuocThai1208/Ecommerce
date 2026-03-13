@@ -1,6 +1,5 @@
 package com.ecommerce.payment_service.dto.request;
 
-import com.ecommerce.payment_service.enums.MethodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,5 +18,5 @@ public class TransactionDetailRequest {
     String orderId;  // id đơn hàng
     String brandId; // id thương hiệu
     BigDecimal amount; // số tiền giao dịch
-    Set<ProductCheckoutRequest> products; // danh sách sản phẩm thanh toán
+    Set<ProductPaymentRequest> products; // danh sách sản phẩm thanh toán
 }

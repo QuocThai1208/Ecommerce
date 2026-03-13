@@ -36,11 +36,10 @@ apiAxios.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // if (typeof window !== "undefined") {
-          //   localStorage.removeItem("authToken");
-          //   window.location.href = "/login"; // Chuyển về trang đăng nhập
-          // }
-          // Có thể redirect về trang login ở đây
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("authToken");
+            window.location.href = "/login";
+          }
           break;
         case 403:
           console.error("Bạn không có quyền truy cập!");

@@ -15,4 +15,6 @@ public class WarehouseCreationEvent {
     String contactPhone; // Sdt của người đại diện
     String wardCode; // địa chỉ
     String addressDetail; // địa chỉ chi tiết
+    Double latitude; // vĩ độ
+    Double longitude; // kinh độ
 }

@@ -23,14 +23,13 @@ public class Orders {
     String id;
 
     String userId; // Id của người đặt hàng
+    String warehouseId;
+    String brandId;
+    String brandName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     OrderStatus status;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shippingAddressId", nullable = false)
-    ShippingAddress shippingAddress;
 
     String couponCode; // Mã giảm giá đã áp dụng
     BigDecimal subtotalAmount; // Tổng giá trị hàng hóa trước thuế/ship/giảm giá.

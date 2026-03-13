@@ -1,6 +1,7 @@
 package com.ecommerce.shipment_service.mapper;
 
 import com.ecommerce.event.dto.ShipmentCreationEvent;
+import com.ecommerce.shipment_service.dto.request.CalculatorFeeItemRequest;
 import com.ecommerce.shipment_service.dto.request.CalculatorFeeRequest;
 import com.ecommerce.shipment_service.dto.request.GhnFeeRequest;
 import com.ecommerce.shipment_service.dto.response.ShipmentResponse;
@@ -15,5 +16,5 @@ public interface ShipmentMapper {
     @Mapping(target = "userAddress", ignore = true)
     ShipmentResponse toResponse(Shipment shipment);
 
-    GhnFeeRequest toGhnFeeRequest(CalculatorFeeRequest request);
+    GhnFeeRequest toGhnFeeRequest(CalculatorFeeItemRequest request);
 }

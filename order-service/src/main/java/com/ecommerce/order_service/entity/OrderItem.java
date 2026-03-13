@@ -27,8 +27,8 @@ public class OrderItem {
 
     String productVariantId;
     String productNameSnapshot;
-    String mediaUrl;
     BigDecimal unitPriceSnapshot;
+    String mediaUrl;
     long quantity;
     BigDecimal totalItemAmount;
     Instant createdAt;
