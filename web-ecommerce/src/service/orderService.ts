@@ -6,18 +6,18 @@ interface ProductCheckouts{
     quantity: number
 }
 
-interface ReviewItemRequest {
+interface brandOrderRequest {
     brandId: string,
+    couponCode: string,
     productCheckouts: ProductCheckouts[]
 }
 
 interface ReviewRequest {
-    couponCode: string,
     userAddressId: string,
     customerLatitude: number,
     customerLongitude: number,
     method: string,
-    reviewItemRequest: ReviewItemRequest[]
+    brandOrderRequest: brandOrderRequest[]
 }
 
 interface ApiResponse<T> {
@@ -33,6 +33,10 @@ export const OrderService = {
     },
     getMyOrders: async (params:any) => {
         const res = await apiAxios.get(ENDPOINTS.ORDER.MY_ORDERS, { params })as ApiResponse<any>;
+        return res?.result
+    },
+    createOrder: async (data : ReviewRequest) => {
+        const res = await apiAxios.post(ENDPOINTS.ORDER.CREATE_ORDER, data)as ApiResponse<any>;
         return res?.result
     }
 }

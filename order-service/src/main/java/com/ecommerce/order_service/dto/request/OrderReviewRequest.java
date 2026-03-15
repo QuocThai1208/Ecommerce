@@ -12,7 +12,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderReviewRequest {
-    String couponCode;
     String userAddressId;
     String customerLatitude;
     String customerLongitude;

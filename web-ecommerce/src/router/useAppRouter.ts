@@ -30,7 +30,17 @@ export const useAppRouter = () => {
         router.back();
     }
 
+    const goToPaymentResultSuccess = () => {
+        router.push("/payment/result/success")
+    }
+
+    const goToPaymentResultCancel = () => {
+        router.push("/payment/result/cancel")
+    }
+
     return {
+        goToPaymentResultSuccess,
+        goToPaymentResultCancel,
         goToProfile,
         goToLogin,
         goToSellerDashBoard,

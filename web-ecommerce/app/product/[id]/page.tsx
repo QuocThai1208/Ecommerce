@@ -67,8 +67,9 @@ interface ProductCheckouts{
     quantity: number
 }
 
-interface ReviewItemRequest {
+interface brandOrderRequest {
     brandId: string,
+    couponCode: string,
     productCheckouts: ProductCheckouts[]
 }
 
@@ -117,10 +118,11 @@ export default function ProductDetail() {
         }
     }
 
-    const checkout = () => {
+    const getOrderReview = () => {
         if(!selectedVariant) return
-        const reviewRequest: ReviewItemRequest[] = [{
+        const reviewRequest: brandOrderRequest[] = [{
                 brandId: product?.brandName,
+                couponCode: '',
                 productCheckouts: [
                     { variantId: selectedVariant?.sku, quantity: quantity }
                 ]
@@ -387,7 +389,7 @@ export default function ProductDetail() {
                                     Thêm Vào Giỏ Hàng
                                 </button>
                                 <button
-                                onClick={checkout}
+                                onClick={getOrderReview}
                                     disabled={!selectedVariant || currentStock <= 0}
                                     className="flex items-center justify-center gap-1 py-2.5 bg-primary text-white rounded hover:bg-primary/90 transition-colors font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >

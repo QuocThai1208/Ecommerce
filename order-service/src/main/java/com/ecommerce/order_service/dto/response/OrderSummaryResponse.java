@@ -17,5 +17,6 @@ public class OrderSummaryResponse {
     OrderStatus status;
     BigDecimal finalAmount; // Tổng số tiền cuối cùng
     String paymentMethod; // Phương thức thanh toán
+    String brandName;
     Instant createdAt;
 }

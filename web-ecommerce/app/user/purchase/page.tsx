@@ -59,6 +59,14 @@ const TAB_STATUS_MAP: Record<string, string | null> = {
     cancelled: "CANCELLED",
 }
 
+const METHOD_PAYMENT_LABELS: Record<string,string> = {
+    "BANK_TRANSFER": "Chuyển khoản ngân hàng",
+  "CASH": "Thanh toán khi nhận hàng",
+  "WALLET": "Thanh toán ví điện tử",
+  "CARD": "Thanh toán bằng thẻ",
+}
+
+
 export default function ShopOrdersPage() {
     const [activeTab, setActiveTab] = useState("all")
     const [orders, setOrders] = useState<Order[]>([])
@@ -362,8 +370,11 @@ export default function ShopOrdersPage() {
                                 </div>
 
                                 {/* Order Footer */}
-                                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50">
-                                    <div className="flex items-center justify-between sm:justify-end gap-3">
+                                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+                                    <div className="text-sm text-slate-600">
+                                        {METHOD_PAYMENT_LABELS[order.method]}
+                                    </div>
+                                    <div className="flex items-center justify-between gap-3">
                                         <span className="text-xs sm:text-sm text-slate-600">Thành tiền:</span>
                                         <p className="text-xm font-bold text-primary">{formatPrice(order.finalAmount)}₫</p>
                                     </div>

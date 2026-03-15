@@ -161,13 +161,14 @@ public class OrdersService {
             BigDecimal finalAmount = subtotal.add(shippingFee);
             totalFinalAmount = totalFinalAmount.add(finalAmount);
 
+            var status = request.getMethod().equals(MethodType.CASH) ? OrderStatus.PROCESSING : OrderStatus.PENDING;
             Orders order = Orders.builder()
                     .id(orderId)
                     .userId(userId)
                     .warehouseId(warehouseId)
                     .brandId(brandId)
                     .brandName(currentBrandName[0])
-                    .status(OrderStatus.PENDING)
+                    .status(status)
                     .subtotalAmount(subtotal)
                     .shippingCost(shippingFee)
                     .finalAmount(finalAmount)

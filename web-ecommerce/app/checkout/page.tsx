@@ -16,6 +16,8 @@ import {
 import { AddressForm } from "@/components/ui/address-form"
 import { useAddress } from "@/src/hooks/useAddress"
 import { UserAddressRequest, UserAddressResponse } from "@/types/address"
+import { toast } from "sonner"
+import { useAppRouter } from "@/src/router/useAppRouter"
 
 interface ApiResponse<T> {
     result: T;
@@ -28,18 +30,18 @@ interface ProductCheckouts {
     quantity: number
 }
 
-interface ReviewItemRequest {
+interface brandOrderRequest {
     brandId: string,
+    couponCode: string,
     productCheckouts: ProductCheckouts[]
 }
 
 interface ReviewRequest {
-    couponCode: string,
     userAddressId: string,
     customerLatitude: number,
     customerLongitude: number,
     method: string,
-    reviewItemRequest: ReviewItemRequest[]
+    brandOrderRequest: brandOrderRequest[]
 }
 
 interface ProductResponse {
@@ -67,7 +69,7 @@ export default function CheckoutPage() {
     const [address, setAddress] = useState<UserAddressResponse>()
     const [showAddressModal, setShowAddressModal] = useState(false)
     const [selectedAddressId, setSelectedAddressId] = useState<string>("")
-    const [reviewRequest, setReviewRequest] = useState<ReviewItemRequest[] | null>(null)
+    const [reviewRequest, setReviewRequest] = useState<brandOrderRequest[] | null>(null)
     const [dataRequest, setDataRequest] = useState<ReviewRequest | null>(null);
     const [dataResponse, setDataResponse] = useState<ReviewResponse[] | null>(null);
     const [loading, setLoading] = useState(false)
@@ -77,6 +79,11 @@ export default function CheckoutPage() {
         addresses, setAddresses,
         handleAdd, handleUpdate, handleSetDefault
     } = useAddress();
+
+    const {
+        goToPaymentResultSuccess,
+        goToPaymentResultCancel,
+    } = useAppRouter();
 
     const loadDataReviewResponse = async () => {
         try {
@@ -116,6 +123,21 @@ export default function CheckoutPage() {
         setSelectedAddressId(selectedAddress.id)
     }
 
+    const checkout = async () => {
+        try {
+            if (!dataRequest) return;
+            const result = await OrderService.createOrder(dataRequest);
+            if (result?.sessionUrl) {
+                window.open(result.sessionUrl, '_blank', 'noopener,noreferrer');
+            } else {
+                goToPaymentResultSuccess();
+            }
+        } catch (e) {
+            console.log("Error at checout: ", e)
+            toast.error("Đã có lỗi, vui lòng thử lại sau.")
+        }
+    }
+
     //----------------useEffect---------------------
     useEffect(() => {
         const data = sessionStorage.getItem('checkout_data');
@@ -127,12 +149,11 @@ export default function CheckoutPage() {
     useEffect(() => {
         if (address && reviewRequest) {
             const newDataRequest: ReviewRequest = {
-                couponCode: '',
                 userAddressId: address.id,
                 customerLatitude: address.latitude,
                 customerLongitude: address.longitude,
                 method: paymentMethod,
-                reviewItemRequest: reviewRequest
+                brandOrderRequest: reviewRequest
             }
             setDataRequest(newDataRequest)
         }
@@ -180,6 +201,7 @@ export default function CheckoutPage() {
                 setEditingId(null);
             } else {
                 await handleAdd(data);
+
             }
             setShowForm(false);
         } finally {
@@ -400,7 +422,9 @@ export default function CheckoutPage() {
                         <span className="text-primary cursor-pointer">Điều khoản Shopee</span>
                     </p>
 
-                    <button className="w-full bg-primary text-primary-foreground py-3 rounded font-semibold text-base hover:opacity-90 transition">
+                    <button
+                        onClick={checkout}
+                        className="w-full bg-primary text-primary-foreground py-3 rounded font-semibold text-base hover:opacity-90 transition">
                         Đặt Hàng
                     </button>
                 </div>
@@ -440,10 +464,10 @@ export default function CheckoutPage() {
                                             }`}
                                     >
                                         <div className="flex items-start gap-4">
-                                            <div 
-                                            onClick={() => handleSelectAddress(addr)}
-                                            className={`mt-1 w-5 h-5 rounded-full border-2 cursor-pointer flex items-center justify-center transition-colors ${selectedAddressId === addr.id ? "border-orange-500" : "border-gray-300"
-                                                }`}>
+                                            <div
+                                                onClick={() => handleSelectAddress(addr)}
+                                                className={`mt-1 w-5 h-5 rounded-full border-2 cursor-pointer flex items-center justify-center transition-colors ${selectedAddressId === addr.id ? "border-orange-500" : "border-gray-300"
+                                                    }`}>
                                                 {selectedAddressId === addr.id && (
                                                     <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-in zoom-in duration-150" />
                                                 )}

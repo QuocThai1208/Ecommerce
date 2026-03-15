@@ -57,7 +57,8 @@ export const ENDPOINTS = {
   },
   ORDER: {
     REVIEW: "/orders/review",
-    MY_ORDERS: "/orders/my-orders"
+    MY_ORDERS: "/orders/my-orders",
+    CREATE_ORDER: "/orders/",
   }
 
 } as const; // Dùng 'as const' để Typescript gợi ý code chính xác hơn
